@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"
+      integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA=="
+      crossorigin="anonymous"
+    ></script>
+    <link rel="stylesheet" href="{{ url_for('static',filename='chat-demo.css') }}">
+</head>
+<body>
+    <section class="chat-container">
+        {% for post in posts %}{% if post.author.username ==
+            current_user.username %}
+            <div class="message sent">
+                <span class="user">{{ post.author.username }}</span>
+                <span>{{ post.body }}</span>
+                <span class="stamp">{{ post.timestamp.strftime("%H:%M") }}</span>
+            </div>
+            {% else %}
+            <div class="message received">
+                <span class="user">{{ post.author.username }}</span>
+                <span>{{ post.body }}</span>
+                <span class="stamp">{{ post.timestamp.strftime("%H:%M") }}</span>
+            </div>
+            {% endif %} {% endfor %}
+    </section>
+    <div class="input">
+        <span id="plus">+</span>
+        <div id="input-box">
+            <input type="text" placeholder="Type message...">
+            <img src="{{ url_for('static',filename='send.png') }}" id="send" alt="send">
+        </div>
+    </div>
+    <script>
+        var socket = io();
+const container = document.querySelector('.chat-container')
+function handleFormSubmit() {
+    var input = document.querySelector("input");
+    var message = input.value.trim();
+    if (message !== "") {
+      socket.emit("message", message);
+      input.value = "";
+    }
+  }
+document.getElementById("send").addEventListener('click',handleFormSubmit)
+document.querySelector("input").addEventListener('keypress',()=>{
+    if (event.key === 'Enter') {
+        handleFormSubmit()
+    } else {
+        return false
+    }   
+})
+
+const handleChat = (username,message,isSelf)=> {
+    const date = new Date()
+    const hours = Number(date.getHours()) < 10 ? `0${date.getHours()}` : date.getHours()
+    const minutes = Number(date.getMinutes()) < 10 ? `0${date.getMinutes()}` : date.getMinutes()
+    const time = hours+":"+minutes
+    const messag = document.createElement('div')
+    const user = document.createElement('span')
+    const stamp = document.createElement('span')
+    const msg = document.createElement("span")
+    messag.classList.add("message")
+    messag.classList.add(isSelf ? "sent" : "received")
+    user.classList.add("user")
+    stamp.classList.add("stamp")
+    user.innerText = username
+    stamp.innerText = time
+    msg.innerText = message
+    messag.appendChild(user)
+    messag.appendChild(msg)
+    messag.appendChild(stamp)
+    container.appendChild(messag)
+    window.scrollTo({
+        top: container.scrollHeight,
+        behavior: "smooth"
+    })
+}
+
+socket.on("mes", (data) => {
+    var username = `${data.user}`;
+    var message = data.msg;
+    var currentUser = "{{ current_user.username }}"
+    var isUser = currentUser == username ? true : false;
+    handleChat(username, message,isUser);
+    console.log(currentUser)
+  });
+
+    </script>
+</body>
+</html>
