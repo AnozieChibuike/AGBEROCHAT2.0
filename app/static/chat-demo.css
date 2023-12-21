@@ -81,3 +81,17 @@ body {
     margin-right: 10px;
     cursor: pointer;
 }
+.chat-info {
+    display: flex;
+    flex-direction: column;
+    justify-self: center;   
+}
+.chat-top {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background-color: white;
+    display: flex;
+    align-items: center;
+}

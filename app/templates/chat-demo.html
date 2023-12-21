@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Document</title>
     <script
       src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"
@@ -12,6 +12,13 @@
     <link rel="stylesheet" href="{{ url_for('static',filename='chat-demo.css') }}">
 </head>
 <body>
+    <section class="chat-top">
+        <div class="back"><</div>
+        <div class="chat-info">
+            <span class="chat-name">General Chat</span>
+            <span class="active">10 online</span>
+        </div>
+    </section>
     <section class="chat-container">
         {% for post in posts %}{% if post.author.username ==
             current_user.username %}
