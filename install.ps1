@@ -1,5 +1,12 @@
 Write-Host "Installation of required packages..."
-pip install -r requirements.txt
+
+$decide = Read-Host "Skip package installation? (yes/no)"
+    if ($decide -eq "no") {
+        Write-Host "Installing packages"
+        pip install -r requirements.txt
+    } else {
+        Write-Host "Starting Migration Phase"
+    }
 # pip install --upgrade -r requirements.txt
 if ($LASTEXITCODE -ne 0) {
     exit 0

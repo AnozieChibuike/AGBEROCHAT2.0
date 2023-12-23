@@ -1,9 +1,28 @@
+* {
+    transition: background 0.3s ease-in, color 0.3s, filter 0.3s;
+}
+/* * {
+    transition: color 0.5s ease-in;
+} */
+
+span video {
+    width: 50vw;
+    margin: 7px;
+}
+span img {
+    width: 50vw;
+    margin: 7px;
+}
+
 body {
-    font-family: Arial, Helvetica, sans-serif;
+    /* font-family: Arial, Helvetica, sans-serif; */
     margin: 0;
     padding: 0;
     padding-bottom: 40px;
+    padding-top: 40px;
     background-color: #f0f0f0;
+    background-image: url('/static/assets/images/big-sur-light.jpg');
+    background-size: cover;
 }
 .chat-container {
     max-width: 600px;
@@ -84,9 +103,22 @@ body {
 .chat-info {
     display: flex;
     flex-direction: column;
-    justify-self: center;   
+    position: relative;
+    cursor: pointer;
 }
+
+.back {
+    cursor: pointer;
+    margin-left: 5px;
+    font-size: 20px;
+    width: 30px;
+}
+.back  img {
+    width: 100%;
+}
+
 .chat-top {
+    padding: 10px;
     position: fixed;
     top: 0;
     left: 0;
@@ -94,4 +126,37 @@ body {
     background-color: white;
     display: flex;
     align-items: center;
+    justify-content: space-between;
+}
+
+.active {
+    color: grey;
+    font-size: 13px;
+    align-self: center;
+}
+
+.onliners {
+    pointer-events: none;
+    position: fixed;
+    padding-left: 30px;
+    padding-right: 30px;
+    max-width: 200px;
+    border-radius: 9px;
+    background-color: white;
+    box-shadow: 0 0 5px black;
+    top: 8vh;
+    left: 36vw;
+    opacity: 0;
+    transition: 750ms all;
+    z-index: 4;
+}
+.onliners ul {
+    padding-left: 0px;
+    margin-left: 0px;
+}
+.onliners li {
+    margin: 7px;
+}
+.chat-info:hover .onliners {
+    opacity: 1;
 }

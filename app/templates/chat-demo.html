@@ -1,102 +1,86 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
     <title>Document</title>
     <script
       src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"
       integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA=="
       crossorigin="anonymous"
     ></script>
-    <link rel="stylesheet" href="{{ url_for('static',filename='chat-demo.css') }}">
-</head>
-<body>
-    <section class="chat-top">
-        <div class="back"><</div>
-        <div class="chat-info">
-            <span class="chat-name">General Chat</span>
-            <span class="active">10 online</span>
+    <!-- <script src="{{ url_for('static',filename='socket.js') }}"></script> -->
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static',filename='/css/chat-demo.css') }}"
+    />
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static',filename='/css/output.css') }}"
+    />
+  </head>
+  <body>
+    <section class="chat-top dark:bg-slate-900">
+      <a href="/logout"
+        ><div class="back">
+          <img src="{{ url_for('static',filename='/assets/images/back.png') }}" class="filter dark:invert" alt="" /></div
+      ></a>
+      <div class="chat-info">
+        <span class="chat-name dark:text-slate-200 text-xl font-semibold">General Chat</span>
+        <span class="active" style="color: green; font-weight: bold"
+          >0 online</span
+        >
+        <div class="onliners">
+          <ul class="onl"></ul>
         </div>
+      </div>
+      <div><button class="dark:bg-slate-500 p-2 sm:p-1 rounded-sm bg-slate-950 text-slate-300" onclick="toggleDarkMode()">dark</button></div>
     </section>
     <section class="chat-container">
-        {% for post in posts %}{% if post.author.username ==
-            current_user.username %}
-            <div class="message sent">
-                <span class="user">{{ post.author.username }}</span>
-                <span>{{ post.body }}</span>
-                <span class="stamp">{{ post.timestamp.strftime("%H:%M") }}</span>
-            </div>
-            {% else %}
-            <div class="message received">
-                <span class="user">{{ post.author.username }}</span>
-                <span>{{ post.body }}</span>
-                <span class="stamp">{{ post.timestamp.strftime("%H:%M") }}</span>
-            </div>
-            {% endif %} {% endfor %}
+      {% for post in posts %}{% if post.author.username == current_user.username
+      %}
+      <div class="message sent dark:bg-teal-900 dark:text-white">
+        <span class="user">{{ post.author.username }}</span>
+        <span>{{ post.body }}</span>
+        <span class="stamp">{{ post.timestamp.strftime("%H:%M") }}</span>
+      </div>
+      {% else %}
+      <div class="message received dark:bg-gray-800 dark:text-white">
+        <span class="user">{{ post.author.username }}</span>
+        <span>{{ post.body }}</span>
+        <span class="stamp">{{ post.timestamp.strftime("%H:%M") }}</span>
+      </div>
+      {% endif %} {% endfor %}
     </section>
-    <div class="input">
-        <span id="plus">+</span>
-        <div id="input-box">
-            <input type="text" placeholder="Type message...">
-            <img src="{{ url_for('static',filename='send.png') }}" id="send" alt="send">
-        </div>
+    <div class="input h-14 dark:bg-slate-900">
+      <span id="plus" class="dark:text-white">+</span>
+      <div id="input-box" >
+        <input type="text" placeholder="Type message..." class="p-2 dark:bg-slate-700 dark:text-white " />
+        <img
+          src="{{ url_for('static',filename='/assets/images/send.png') }}"
+          id="send"
+          alt="send"
+          class="dark:invert"
+        />
+      </div>
     </div>
+    <script src="{{ url_for('static',filename='/js/chat-demo.js')}}"></script>
     <script>
-        var socket = io();
-const container = document.querySelector('.chat-container')
-function handleFormSubmit() {
-    var input = document.querySelector("input");
-    var message = input.value.trim();
-    if (message !== "") {
-      socket.emit("message", message);
-      input.value = "";
-    }
-  }
-document.getElementById("send").addEventListener('click',handleFormSubmit)
-document.querySelector("input").addEventListener('keypress',()=>{
-    if (event.key === 'Enter') {
-        handleFormSubmit()
-    } else {
-        return false
-    }   
-})
-
-const handleChat = (username,message,isSelf)=> {
-    const date = new Date()
-    const hours = Number(date.getHours()) < 10 ? `0${date.getHours()}` : date.getHours()
-    const minutes = Number(date.getMinutes()) < 10 ? `0${date.getMinutes()}` : date.getMinutes()
-    const time = hours+":"+minutes
-    const messag = document.createElement('div')
-    const user = document.createElement('span')
-    const stamp = document.createElement('span')
-    const msg = document.createElement("span")
-    messag.classList.add("message")
-    messag.classList.add(isSelf ? "sent" : "received")
-    user.classList.add("user")
-    stamp.classList.add("stamp")
-    user.innerText = username
-    stamp.innerText = time
-    msg.innerText = message
-    messag.appendChild(user)
-    messag.appendChild(msg)
-    messag.appendChild(stamp)
-    container.appendChild(messag)
-    window.scrollTo({
-        top: container.scrollHeight,
-        behavior: "smooth"
-    })
-}
-
-socket.on("mes", (data) => {
-    var username = `${data.user}`;
-    var message = data.msg;
-    var currentUser = "{{ current_user.username }}"
-    var isUser = currentUser == username ? true : false;
-    handleChat(username, message,isUser);
-    console.log(currentUser)
-  });
-
+      socket.on("mes", (data) => {
+        var username = `${data.user}`;
+        var message = data.msg;
+        var currentUser = "{{ current_user.username }}";
+        var isUser = currentUser == username ? true : false;
+        handleChat(username, message, isUser);
+      });
+      socket.on("connect", () => {
+        console.log("{{ current_user.username }} is connected");
+        socket.emit("event", { data: "{{ current_user.username }}" });
+      });
     </script>
-</body>
+    
+  </body>
 </html>

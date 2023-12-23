@@ -1,7 +1,13 @@
 @echo off
 echo Installation of required packages...
 
-pip install -r requirements.txt
+set /p decide=Skip package installation? (yes/no): 
+    if "%decide%"=="no" (
+        echo Installing packages ...
+        pip install -r requirements.txt
+    ) else (
+        echo Starting Migration phase ...
+    )
 if errorlevel 1 (
     exit /b 0
 )

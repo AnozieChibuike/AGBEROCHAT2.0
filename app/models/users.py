@@ -9,7 +9,8 @@ class Users(UserMixin,BaseModel):
     password_hash = db.Column(db.String(1024))
     is_admin = db.Column(db.Boolean,default=False)
     msg = db.relationship('Msg', backref='author', lazy='dynamic')
-
+    rooms = db.Column(db.String(126), db.ForeignKey('rooms.id'))
+    
     def set_password(self, password):
         self.password_hash = generate_password_hash(password,method="pbkdf2:sha256")
     def check_password(self, password):

@@ -1,7 +1,13 @@
 #!/bin/bash
 echo "Installation of required packages..."
 
-pip install -r requirements.txt
+read -p "Skip package installation? (yes/no): " decide
+    if [ $decide == "no" ]; then
+        echo "Installing packages ..."
+        pip install -r requirements.txt
+    else 
+        echo "Starting Migrations phase ..."
+    fi
 
 if [ $? -eq 1 ]; then
     exit 0

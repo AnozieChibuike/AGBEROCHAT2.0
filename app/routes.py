@@ -6,6 +6,13 @@ from app.models import Users, Msg
 from flask_login import current_user, login_user, logout_user, login_required
 from urllib.parse import urlsplit
 
+users = {}
+
+@socket.on('event')
+def disev(data):
+    users[data['data']] = {'sid': request.sid}
+    print(users)
+    socket.emit('len',{'len': len(users),'users': list(users.keys())})    
 
 def get_admin_info():
     info = Users.query.filter_by(username='info').first()
@@ -18,16 +25,21 @@ def get_admin_info():
         info = Users.query.filter_by(username='info').first()
         return info
 
+@socket.on('disconnect')
+def _disconnect():
+    del users[current_user.username]
 
 @app.route('/logout')
+@login_required
 def logout():
-    username = current_user.username
-    message = f'{username} left the chat.'
-    info = get_admin_info()
-    p = Msg(body=message, author=info)
-    db.session.add(p)
-    db.session.commit()
-    socket.emit('mes', {'user': 'info', 'msg': message})
+    print(users)
+    try:
+        disconnect(sid=users[current_user.username]['sid'],namespace='/chatbox')
+        # print(users)
+        del users[current_user.username]
+    except KeyError:
+       pass 
+    socket.emit('len',{'len': len(users),'users': list(users.keys())})    
     logout_user()
     return redirect('/')
 
@@ -96,7 +108,7 @@ def message(message):
 @login_required
 def chatbox():
     posts = Msg.query.all()
-    return rd("chat-demo.html", posts=posts)
+    return rd("chat-demo.html", posts=posts,)
 
 
 # API
