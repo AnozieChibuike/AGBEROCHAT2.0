@@ -1,18 +1,31 @@
 from app import app, db, socket
-from flask_socketio import disconnect
+from flask_socketio import disconnect, join_room, leave_room, rooms
 from flask import request, flash, session, redirect, url_for,jsonify
 from flask import render_template as rd
-from app.models import Users, Msg
+from app.models import Users, Msg, Rooms
 from flask_login import current_user, login_user, logout_user, login_required
 from urllib.parse import urlsplit
 
 users = {}
 
+# @socket.on('join')
+# def join(data):
+#     print(users)
+    
+#     print(rooms())
+    
+
 @socket.on('event')
 def disev(data):
-    users[data['data']] = {'sid': request.sid}
-    print(users)
-    socket.emit('len',{'len': len(users),'users': list(users.keys())})    
+    _room = data['room']
+    join_room(data['room'])
+    try:
+        users[data['username']]['rooms'].append(_room)
+    except Exception as e:
+        users[data['username']] = {'rooms':[_room],'sid':request.sid}
+    users_in_room = [user for user, data in users.items() if _room in data.get('rooms',[])]
+    
+    socket.emit('len',{'len': len(users_in_room),'users': users_in_room},to=_room)    
 
 def get_admin_info():
     info = Users.query.filter_by(username='info').first()
@@ -32,7 +45,6 @@ def _disconnect():
 @app.route('/logout')
 @login_required
 def logout():
-    print(users)
     try:
         disconnect(sid=users[current_user.username]['sid'],namespace='/chatbox')
         # print(users)
@@ -67,7 +79,6 @@ def signup():
             return redirect('/signup')
     return rd("signup.html.jinja")
 
-
 @app.route('/login', methods=['POST', 'GET'])
 def login():
     if current_user.is_authenticated:
@@ -89,26 +100,47 @@ def login():
         db.session.add(p)
         db.session.commit()
         if not next_page or urlsplit(next_page).netloc != '':
-            next_page = url_for('chatbox')
+            next_page = url_for('chatroom',room='gEN')
         return redirect(next_page)
     return rd("login.html.jinja")
 
 
 # Handling socket frontend
-@socket.on('message')
-def message(message):
+# @socket.on('message')
+# def message(message):
+#     u = current_user
+#     p = Msg(body=message, author=u)
+#     db.session.add(p)
+#     db.session.commit()
+#     socket.emit('mes', {'user': u.username, 'msg': message},to=message['room'])
+
+
+# @app.route('/chatbox', methods=['POST', 'GET'])
+# @login_required
+# def chatbox():
+#     posts = Msg.query.all()
+#     return rd("chat-demo.html", posts=posts,)
+
+@socket.on('custom_message')
+def handleMessage(data):
     u = current_user
-    p = Msg(body=message, author=u)
-    db.session.add(p)
-    db.session.commit()
-    socket.emit('mes', {'user': u.username, 'msg': message})
-
-
+    room = Rooms.get(id=data['room'])
+    p = Msg(body=data['message'], author=u,room=room)
+    p.save()
+    socket.emit('mes', {'user': u.username, 'msg': data['message']},to=data['room'])
+    
 @app.route('/chatbox', methods=['POST', 'GET'])
 @login_required
-def chatbox():
-    posts = Msg.query.all()
-    return rd("chat-demo.html", posts=posts,)
+def chatroom():
+    room = request.args.get('room')
+    user_rooms = current_user.rooms
+    if not room:
+        return redirect(url_for('chatroom',room=Rooms.query.filter_by(name='General').first().id))
+    Room = Rooms.get(id=room)
+    if not Room:
+        return redirect(url_for('chatroom',room=Rooms.query.filter_by(name='General').first().id))
+    return rd('chat-demo.html', room_id=Room.id,room_name=Room.name,users=Room.users,messages=Room.messages.all(),user_rooms=user_rooms)
+
 
 
 # API

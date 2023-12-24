@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta
@@ -12,24 +12,34 @@
       integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA=="
       crossorigin="anonymous"
     ></script>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.0/flowbite.min.css"
+      rel="stylesheet"
+    />
     <!-- <script src="{{ url_for('static',filename='socket.js') }}"></script> -->
     <link
       rel="stylesheet"
-      href="{{ url_for('static',filename='/css/chat-demo.css') }}"
+      href="{{ url_for('static',filename='chat-demo.css') }}"
     />
     <link
       rel="stylesheet"
-      href="{{ url_for('static',filename='/css/output.css') }}"
+      href="{{ url_for('static',filename='output.css') }}"
     />
   </head>
   <body>
     <section class="chat-top dark:bg-slate-900">
       <a href="/logout"
         ><div class="back">
-          <img src="{{ url_for('static',filename='/assets/images/back.png') }}" class="filter dark:invert" alt="" /></div
+          <img
+            src="{{ url_for('static',filename='/assets/images/back.png') }}"
+            class="filter dark:invert"
+            alt=""
+          /></div
       ></a>
       <div class="chat-info">
-        <span class="chat-name dark:text-slate-200 text-xl font-semibold">General Chat</span>
+        <span class="chat-name dark:text-slate-200 text-xl font-semibold"
+          >{{ room_name }}</span
+        >
         <span class="active" style="color: green; font-weight: bold"
           >0 online</span
         >
@@ -37,28 +47,141 @@
           <ul class="onl"></ul>
         </div>
       </div>
-      <div><button class="dark:bg-slate-500 p-2 sm:p-1 rounded-sm bg-slate-950 text-slate-300" onclick="toggleDarkMode()">dark</button></div>
+      <div>
+        <button
+          id="multiLevelDropdownButton"
+          data-dropdown-toggle="multi-dropdown"
+          class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+          type="button"
+        >
+          Menu<svg
+            class="w-2.5 h-2.5 ms-3"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 10 6"
+          >
+            <path
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="m1 1 4 4 4-4"
+            />
+          </svg>
+        </button>
+
+        <!-- Dropdown menu -->
+        <div
+          id="multi-dropdown"
+          class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700"
+        >
+          <ul
+            class="py-2 text-sm text-gray-700 dark:text-gray-200"
+            aria-labelledby="multiLevelDropdownButton"
+          >
+            <li>
+              <a
+                href="{{ url_for('chatroom',room='General')}}"
+                class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                >General</a
+              >
+            </li>
+            <li>
+              <button
+                id="doubleDropdownButton"
+                data-dropdown-toggle="doubleDropdown"
+                data-dropdown-placement="right-start"
+                type="button"
+                class="flex items-center justify-between w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+              >
+                My Rooms<svg
+                  class="w-2.5 h-2.5 ms-3 rtl:rotate-180"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 6 10"
+                >
+                  <path
+                    stroke="currentColor"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="m1 9 4-4-4-4"
+                  />
+                </svg>
+              </button>
+              <div
+                id="doubleDropdown"
+                class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700"
+              >
+                <ul
+                  class="py-2 text-sm text-gray-700 dark:text-gray-200"
+                  aria-labelledby="doubleDropdownButton"
+                >
+                  {% for user_room in user_rooms %}
+                  <li>
+                    <a
+                      href="{{ url_for('chatroom',room=user_room.id) }}"
+                      class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                      >{{ user_room.name }}</a
+                    >
+                  </li>
+                  {% endfor %}
+                </ul>
+              </div>
+            </li>
+            <li>
+              <a
+                href="#"
+                class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                >Create room</a
+              >
+            </li>
+            <li>
+              <a
+                href="#"
+                class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                >Join room</a
+              >
+            </li>
+            <li>
+              <a
+                id="darker"
+                style="cursor: pointer"
+                onclick="toggleDarkMode()"
+                class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                >DarkMode</a
+              >
+            </li>
+          </ul>
+        </div>
+      </div>
     </section>
     <section class="chat-container">
-      {% for post in posts %}{% if post.author.username == current_user.username
-      %}
+      {% for message in messages %}{% if message.author.username ==
+      current_user.username %}
       <div class="message sent dark:bg-teal-900 dark:text-white">
-        <span class="user">{{ post.author.username }}</span>
-        <span>{{ post.body }}</span>
-        <span class="stamp">{{ post.timestamp.strftime("%H:%M") }}</span>
+        <span class="user">{{ message.author.username }}</span>
+        <span>{{ message.body }}</span>
+        <span class="stamp">{{ message.timestamp.strftime("%H:%M") }}</span>
       </div>
       {% else %}
       <div class="message received dark:bg-gray-800 dark:text-white">
-        <span class="user">{{ post.author.username }}</span>
-        <span>{{ post.body }}</span>
-        <span class="stamp">{{ post.timestamp.strftime("%H:%M") }}</span>
+        <span class="user">{{ message.author.username }}</span>
+        <span>{{ message.body }}</span>
+        <span class="stamp">{{ message.timestamp.strftime("%H:%M") }}</span>
       </div>
       {% endif %} {% endfor %}
     </section>
     <div class="input h-14 dark:bg-slate-900">
       <span id="plus" class="dark:text-white">+</span>
-      <div id="input-box" >
-        <input type="text" placeholder="Type message..." class="p-2 dark:bg-slate-700 dark:text-white " />
+      <div id="input-box">
+        <input
+          type="text"
+          placeholder="Type message..."
+          class="p-2 dark:bg-slate-700 dark:text-white"
+        />
         <img
           src="{{ url_for('static',filename='/assets/images/send.png') }}"
           id="send"
@@ -67,8 +190,34 @@
         />
       </div>
     </div>
-    <script src="{{ url_for('static',filename='/js/chat-demo.js')}}"></script>
     <script>
+      const socket = io.connect(
+        "http://" + document.domain + ":" + location.port
+      );
+      const Active = document.querySelector(".active");
+      const container = document.querySelector(".chat-container");
+      window.scrollTo({
+        top: container.scrollHeight,
+        behavior: "smooth",
+      });
+
+      function handleFormSubmit() {
+        var input = document.querySelector("input");
+        var message = input.value.trim();
+        if (message !== "") {
+          socket.emit("custom_message", {
+            room: "{{ room_id }}",
+            username: "{{ current_user.username }}",
+            message: message,
+          });
+          input.value = "";
+        }
+      }
+      socket.emit("event", {
+        room: "{{ room_id }}",
+        username: "{{ current_user.username }}",
+      });
+      
       socket.on("mes", (data) => {
         var username = `${data.user}`;
         var message = data.msg;
@@ -76,11 +225,19 @@
         var isUser = currentUser == username ? true : false;
         handleChat(username, message, isUser);
       });
-      socket.on("connect", () => {
-        console.log("{{ current_user.username }} is connected");
-        socket.emit("event", { data: "{{ current_user.username }}" });
+      const onlineUsers = document.querySelector(".onl");
+      socket.on("len", (data) => {
+        onlineUsers.innerHTML = "";
+        data["users"].forEach((element) => {
+          const spaner = document.createElement("li");
+          spaner.innerText = element;
+          onlineUsers.appendChild(spaner);
+        });
+        Active.innerHTML = `${data["len"]} online`;
+        
       });
     </script>
-    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.0/flowbite.min.js"></script>
+    <script src="{{ url_for('static',filename='chat-demo.js')}}"></script>
   </body>
 </html>

@@ -1,26 +1,4 @@
-// localStorage.theme = 'dark'
 
-if (localStorage.theme === 'dark') 
-  document.documentElement.classList.add('dark')
-else 
-  document.documentElement.classList.remove('dark')
-
-var socket = io();
-let connected = 0;
-const Active = document.querySelector(".active");
-const container = document.querySelector(".chat-container");
-window.scrollTo({
-  top: container.scrollHeight,
-  behavior: "smooth",
-});
-function handleFormSubmit() {
-  var input = document.querySelector("input");
-  var message = input.value.trim();
-  if (message !== "") {
-    socket.emit("message", message);
-    input.value = "";
-  }
-}
 document.getElementById("send").addEventListener("click", handleFormSubmit);
 document.querySelector("input").addEventListener("keypress", () => {
   if (event.key === "Enter") {
@@ -43,7 +21,8 @@ const handleChat = (username, message, isSelf) => {
   const user = document.createElement("span");
   const stamp = document.createElement("span");
   const msg = document.createElement("span");
-  messag.classList.add("message");
+  messag.classList.add("message", "dark:text-white");
+  messag.classList.add(isSelf ? "dark:bg-teal-900" : "dark:bg-gray-800");
   messag.classList.add(isSelf ? "sent" : "received");
   user.classList.add("user");
   stamp.classList.add("stamp");
@@ -60,17 +39,12 @@ const handleChat = (username, message, isSelf) => {
   });
 };
 
-const onlineUsers = document.querySelector(".onl");
-socket.on("len", (data) => {
-  onlineUsers.innerHTML = "";
-  data["users"].forEach((element) => {
-    const spaner = document.createElement("li");
-    spaner.innerText = element;
-    onlineUsers.appendChild(spaner);
-  });
-  Active.innerHTML = `${data["len"]} online`;
-});
 
 const toggleDarkMode = () => {
-  document.documentElement.classList.toggle('dark')
-}
+  if (document.querySelector("#darker").innerText === "DarkMode")
+  document.querySelector("#darker").innerText = "LightMode";
+  else 
+  document.querySelector("#darker").innerText = "DarkMode";
+  
+  document.documentElement.classList.toggle("dark");
+};
