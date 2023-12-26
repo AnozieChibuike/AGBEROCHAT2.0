@@ -9,7 +9,7 @@ document.querySelector(".msg-input").addEventListener("keypress", () => {
 });
 
 function makeLinksClickable(message) {
-  return message.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" style="color: blue;" target="_blank">$1</a>');
+  return message.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" style=" color: rgb(37,99,235);" target="_blank">$1</a>');
 }
 
   var messageBodies = document.querySelectorAll(".message-body");
