@@ -8,6 +8,16 @@ document.querySelector(".msg-input").addEventListener("keypress", () => {
   }
 });
 
+function makeLinksClickable(message) {
+  return message.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" style="color: blue;" target="_blank">$1</a>');
+}
+
+  var messageBodies = document.querySelectorAll(".message-body");
+  messageBodies.forEach(function(body) {
+    body.innerHTML = makeLinksClickable(body.innerHTML);
+  });
+
+
 const handleChat = (username, message, isSelf) => {
   const date = new Date();
   const hours =
@@ -28,7 +38,7 @@ const handleChat = (username, message, isSelf) => {
   stamp.classList.add("stamp");
   user.innerText = username;
   stamp.innerText = time;
-  msg.innerText = message;
+  msg.innerHTML = makeLinksClickable(message);
   messag.appendChild(user);
   messag.appendChild(msg);
   messag.appendChild(stamp);
@@ -48,3 +58,13 @@ const toggleDarkMode = () => {
   
   document.documentElement.classList.toggle("dark");
 };
+
+const copyToClipboard = () => {
+  const invite_link = document.getElementById('invite_link')
+  const tooltip = document.querySelector('.tip')
+  navigator.clipboard.writeText(invite_link.innerText)
+  tooltip.style.opacity = '1'
+  setTimeout(() => {
+    tooltip.style.opacity = '0'
+  }, 1500);
+}

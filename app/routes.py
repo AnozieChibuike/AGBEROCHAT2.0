@@ -1,3 +1,4 @@
+import ngrok
 from app import app, db, socket
 from flask_socketio import disconnect, join_room, leave_room, rooms
 from flask import request, flash, session, redirect, url_for,jsonify
@@ -6,14 +7,8 @@ from app.models import Users, Msg, Rooms
 from flask_login import current_user, login_user, logout_user, login_required
 from urllib.parse import urlsplit
 
-users = {}
 
-# @socket.on('join')
-# def join(data):
-#     print(users)
-    
-#     print(rooms())
-    
+users = {}
 
 @socket.on('event')
 def disev(data):
@@ -106,22 +101,6 @@ def login():
     return rd("login.html.jinja")
 
 
-# Handling socket frontend
-# @socket.on('message')
-# def message(message):
-#     u = current_user
-#     p = Msg(body=message, author=u)
-#     db.session.add(p)
-#     db.session.commit()
-#     socket.emit('mes', {'user': u.username, 'msg': message},to=message['room'])
-
-
-# @app.route('/chatbox', methods=['POST', 'GET'])
-# @login_required
-# def chatbox():
-#     posts = Msg.query.all()
-#     return rd("chat-demo.html", posts=posts,)
-
 @socket.on('custom_message')
 def handleMessage(data):
     u = current_user
@@ -145,7 +124,8 @@ def chatroom():
     if current_user not in Room.users:
         flash("Not a member of Room, request invite link from admin",'error')
         return redirect(url_for('chatroom',room=Rooms.query.filter_by(name='General').first().id))
-    return rd('chat-demo.html', room_id=Room.id,room_name=Room.name,users=Room.users,messages=Room.messages.all(),user_rooms=user_rooms)
+    is_admin = Room.users[0] == current_user
+    return rd('chat-demo.html', room_id=Room.id,room_name=Room.name,users=Room.users,messages=Room.messages.all(),user_rooms=user_rooms,is_admin=is_admin)
 
 @app.post('/create_room')
 @login_required
@@ -158,10 +138,24 @@ def create_room():
     flash('Chatroom created successfully','success')
     return redirect(url_for('chatroom',room=room.id))
 
-@app.post('/join')
+@app.get('/join')
 @login_required
 def join():
-    return 'Nice'
+    room_name = request.args.get('room')
+    if not room_name:
+        flash('Invalid','error')
+        return redirect(url_for('chatroom',room=Rooms.query.filter_by(name='General').first().id))
+    room = Rooms.get(id=room_name)
+    if not room:
+        flash('Room does not exist, check the invite link again','error')
+        return redirect(url_for('chatroom',room=Rooms.query.filter_by(name='General').first().id))
+    if current_user in room.users:
+        flash('Already a member of this room','error')
+        return redirect(url_for('chatroom',room=room.id))
+    room.users.append(current_user)
+    room.save()
+    flash(f'Welcome to {room.name} room, please be nice',"success")
+    return redirect(url_for('chatroom',room=room.id))
 
 # API
 

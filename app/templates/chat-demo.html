@@ -1,354 +1,351 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-    />
-    <title>Document</title>
-    <script
-      src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"
-      integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA=="
-      crossorigin="anonymous"
-    ></script>
-    <link
-      href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.0/flowbite.min.css"
-      rel="stylesheet"
-    />
-    <!-- <script src="{{ url_for('static',filename='socket.js') }}"></script> -->
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static',filename='chat-demo.css') }}"
-    />
-    <link
-      rel="stylesheet"
-      href="{{ url_for('static',filename='output.css') }}"
-    />
-  </head>
-  <body>
-    <section class="chat-top dark:bg-slate-900">
-      <a href="/logout"
-        ><div class="back">
-          <img
-            src="{{ url_for('static',filename='/assets/images/back.png') }}"
-            class="filter dark:invert"
-            alt=""
-          /></div
-      ></a>
-      <div class="chat-info">
-        <span class="chat-name dark:text-slate-200 text-xl font-semibold"
-          >{{ room_name }}</span
-        >
-        <span class="active" style="color: green; font-weight: bold"
-          >0 online</span
-        >
-        <div class="onliners">
-          <ul class="onl"></ul>
-        </div>
-      </div>
-      <div>
-        <button
-          id="multiLevelDropdownButton"
-          data-dropdown-toggle="multi-dropdown"
-          class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-          type="button"
-        >
-          Menu<svg
-            class="w-2.5 h-2.5 ms-3"
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
-            fill="none"
-            viewBox="0 0 10 6"
-          >
-            <path
-              stroke="currentColor"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="m1 1 4 4 4-4"
-            />
-          </svg>
-        </button>
 
-        <!-- Dropdown menu -->
-        <div
-          id="multi-dropdown"
-          class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700"
-        >
-          <ul
-            class="py-2 text-sm text-gray-700 dark:text-gray-200"
-            aria-labelledby="multiLevelDropdownButton"
-          >
-            <li>
-              <a
-                href="{{ url_for('chatroom',room='General')}}"
-                class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                >General</a
-              >
-            </li>
-            <li>
-              <button
-                id="doubleDropdownButton"
-                data-dropdown-toggle="doubleDropdown"
-                data-dropdown-placement="right-start"
-                type="button"
-                class="flex items-center justify-between w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-              >
-                My Rooms<svg
-                  class="w-2.5 h-2.5 ms-3 rtl:rotate-180"
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 6 10"
-                >
-                  <path
-                    stroke="currentColor"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="m1 9 4-4-4-4"
-                  />
-                </svg>
-              </button>
-              <div
-                id="doubleDropdown"
-                class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700"
-              >
-                <ul
-                  class="py-2 text-sm text-gray-700 dark:text-gray-200"
-                  aria-labelledby="doubleDropdownButton"
-                >
-                  {% for user_room in user_rooms %}
-                  <li>
-                    <a
-                      href="{{ url_for('chatroom',room=user_room.id) }}"
-                      class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                      >{{ user_room.name }}</a
-                    >
-                  </li>
-                  {% endfor %}
-                </ul>
-              </div>
-            </li>
-            <li>
-              <a data-modal-target="crud-modal" data-modal-toggle="crud-modal"
-                href="#"
-                class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                >Create room</a
-              >
-            </li>
-            <li>
-              <a
-                href="#" data-modal-target="crud-modal-2" data-modal-toggle="crud-modal-2"
-                class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                >Join room</a
-              >
-            </li>
-            <li>
-              <a
-                id="darker"
-                style="cursor: pointer"
-                onclick="toggleDarkMode()"
-                class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
-                >DarkMode</a
-              >
-            </li>
-          </ul>
-        </div>
-      </div>
-    </section>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Document</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"
+    integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA=="
+    crossorigin="anonymous"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.0/flowbite.min.css" rel="stylesheet" />
+  <!-- <script src="{{ url_for('static',filename='socket.js') }}"></script> -->
+  <link rel="stylesheet" href="{{ url_for('static',filename='/css/chat-demo.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static',filename='/css/output.css') }}" />
+</head>
 
+<body>
 
-<div id="crud-modal" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
-    <div class="relative p-4 w-full max-w-md max-h-full">
-      <!-- Modal content -->
-      <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
-          <!-- Modal header -->
-          <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-                  Create New Room
-              </h3>
-              <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-toggle="crud-modal">
-                  <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-                      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
-                  </svg>
-                  <span class="sr-only">Close modal</span>
-              </button>
-          </div>
-          <!-- Modal body -->
-          <form action="{{ url_for('create_room') }}" method="post"  class="p-4 md:p-5">
-              <div class="grid gap-4 mb-4">
-                  <div class="col-span-2">
-                      <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Room Name</label>
-                      <input type="text" name="room" id="name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Type room name" required="">
-                  </div>
-                  
-              </div>
-              <button type="submit" class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-                  <svg class="me-1 -ms-1 w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"></path></svg>
-                  Create Room
-              </button>
-          </form>
+  <section class="chat-top dark:bg-slate-900">
+    <a href="/logout">
+      <div class="back">
+        <img src="{{ url_for('static',filename='/assets/images/back.png') }}" class="filter dark:invert" alt="" />
       </div>
-  </div>
-</div> 
-<div id="crud-modal-2" tabindex="-1" aria-hidden="true" class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
-    <div class="relative p-4 w-full max-w-md max-h-full">
-      <!-- Modal content -->
-      <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
-          <!-- Modal header -->
-          <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
-              <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
-                Join Room
-              </h3>
-              <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-toggle="crud-modal-2">
-                  <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-                      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
-                  </svg>
-                  <span class="sr-only">Close modal</span>
-              </button>
-          </div>
-          <!-- Modal body -->
-          <form action="{{ url_for('join' ) }}" method="post"  class="p-4 md:p-5">
-              <div class="grid gap-4 mb-4">
-                  <div class="col-span-2">
-                      <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Room ID</label>
-                      <input type="text" name="room" id="name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Enter room ID" required>
-                  </div>
-                  
-              </div>
-              <button type="submit" class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
-                  <svg class="me-1 -ms-1 w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd"></path></svg>
-                  Join Room
-              </button>
-          </form>
+    </a>
+    <div class="chat-info">
+      <span class="chat-name dark:text-slate-200 text-xl font-semibold">{{ room_name }}</span>
+      <span class="active" style="color: green; font-weight: bold">0 online</span>
+      <div class="onliners">
+        <ul class="onl"></ul>
       </div>
-  </div>
-</div>
-{% with errors = get_flashed_messages(category_filter=["error"]) %}
-{% if errors %}  
-    {% for msg in errors %}
-      
-<div id="alert-2" class="flex items-center p-4 mb-4 mt-9 text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
-  <svg class="flex-shrink-0 w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-    <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
-  </svg>
-  <span class="sr-only">Info</span>
-  <div class="ms-3 text-sm font-medium">
-    {{ msg }}
-  </div>
-  <button type="button" class="ms-auto -mx-1.5 -my-1.5 bg-red-50 text-red-500 rounded-lg focus:ring-2 focus:ring-red-400 p-1.5 hover:bg-red-200 inline-flex items-center justify-center h-8 w-8 dark:bg-gray-800 dark:text-red-400 dark:hover:bg-gray-700" data-dismiss-target="#alert-2" aria-label="Close">
-    <span class="sr-only">Close</span>
-    <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
-    </svg>
-  </button>
-</div>
-    {% endfor %}
-{% endif %}
-{% endwith %}
-</div>
-{% with success = get_flashed_messages(category_filter=["success"]) %}
-{% if success %}  
-    {% for suc in success %}
-    <div id="alert-border-3" class="flex items-center p-4 mb-4 mt-9 text-green-800 border-t-4 border-green-300 bg-green-50 dark:text-green-400 dark:bg-gray-800 dark:border-green-800" role="alert">
-      <svg class="flex-shrink-0 w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 20 20">
-        <path d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z"/>
-      </svg>
-      <div class="ms-3 text-sm font-medium">
-        {{ suc }}
-      </div>
-      <button type="button" class="ms-auto -mx-1.5 -my-1.5 bg-green-50 text-green-500 rounded-lg focus:ring-2 focus:ring-green-400 p-1.5 hover:bg-green-200 inline-flex items-center justify-center h-8 w-8 dark:bg-gray-800 dark:text-green-400 dark:hover:bg-gray-700"  data-dismiss-target="#alert-border-3" aria-label="Close">
-        <span class="sr-only">Dismiss</span>
-        <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
-          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+    </div>
+    <div>
+      <button id="multiLevelDropdownButton" data-dropdown-toggle="multi-dropdown"
+        class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center inline-flex items-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+        type="button">
+        Menu<svg class="w-2.5 h-2.5 ms-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none"
+          viewBox="0 0 10 6">
+          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="m1 1 4 4 4-4" />
         </svg>
       </button>
+
+      <!-- Dropdown menu -->
+      <div id="multi-dropdown"
+        class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700">
+        <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="multiLevelDropdownButton">
+          <li>
+            <a href="{{ url_for('chatroom',room='5f6c3479-5b40-4a75-8a1b-ecb143925c66')}}"
+              class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">General</a>
+          </li>
+          <li>
+            <button id="doubleDropdownButton" data-dropdown-toggle="doubleDropdown"
+              data-dropdown-placement="right-start" type="button"
+              class="flex items-center justify-between w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
+              My Rooms<svg class="w-2.5 h-2.5 ms-3 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                fill="none" viewBox="0 0 6 10">
+                <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="m1 9 4-4-4-4" />
+              </svg>
+            </button>
+            <div id="doubleDropdown"
+              class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700">
+              <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="doubleDropdownButton">
+                {% for user_room in user_rooms %}
+                <li>
+                  <a href="{{ url_for('chatroom',room=user_room.id) }}"
+                    class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">{{
+                    user_room.name }}</a>
+                </li>
+                {% endfor %}
+              </ul>
+            </div>
+          </li>
+          <li>
+            <a data-modal-target="crud-modal" data-modal-toggle="crud-modal" href="#"
+              class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Create room</a>
+          </li>
+          <li>
+            <a href="#" data-modal-target="crud-modal-2" data-modal-toggle="crud-modal-2"
+              class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Join room</a>
+          </li>
+          {% if is_admin %}
+          <li>
+            <a data-modal-target="small-modal" data-modal-toggle="small-modal" href="#"
+              class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Invite Link</a>
+          </li>
+          {% endif %}
+          <li>
+            <a id="darker" style="cursor: pointer" onclick="toggleDarkMode()"
+              class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">DarkMode</a>
+          </li>
+        </ul>
+      </div>
     </div>
-    {% endfor %}
-{% endif %}
-{% endwith %}
+  </section>
 
-
-
-
-<section class="chat-container">
-      {% for message in messages %}{% if message.author.username ==
-      current_user.username %}
-      <div class="message sent dark:bg-teal-900 dark:text-white">
-        <span class="user">{{ message.author.username }}</span>
-        <span>{{ message.body }}</span>
-        <span class="stamp">{{ message.timestamp.strftime("%H:%M") }}</span>
+<!-- Small Modal -->
+<div id="small-modal" tabindex="-1" class="fixed top-0 left-0 right-0 z-50 hidden w-full p-4 overflow-x-hidden overflow-y-auto md:inset-0 h-[calc(100%-1rem)] max-h-full">
+  <div class="relative w-full max-w-md max-h-full">
+      <!-- Modal content -->
+      <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+          <!-- Modal header -->
+          <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
+              <h3 class="text-xl font-medium text-gray-900 dark:text-white">
+                  Invite Link
+              </h3>
+              <button type="button" class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white" data-modal-hide="small-modal">
+                  <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+                      <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6"/>
+                  </svg>
+                  <span class="sr-only">Close modal</span>
+              </button>
+          </div>
+          <!-- Modal body -->
+          <div class="p-4 md:p-5 space-y-4">
+              <p class="text-base leading-relaxed text-gray-500 dark:text-gray-400" id="invite_link">
+                {{ url_for('join') }}?room={{ room_id }}
+              </p>
+              <p class="text-base leading-relaxed text-gray-500 dark:text-gray-400 tip"  style="opacity: 0; transition: opacity 0.5s;">
+                  Invite link copied to clipboard
+              </p>
+          </div>
+          <!-- Modal footer -->
+          <div class="flex items-center p-4 md:p-5 border-t border-gray-200 rounded-b dark:border-gray-600">
+              <button  type="button" class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"  onclick="copyToClipboard()">Copy to clipboard</button>
+              
+          </div>
       </div>
-      {% else %}
-      <div class="message received dark:bg-gray-800 dark:text-white">
-        <span class="user">{{ message.author.username }}</span>
-        <span>{{ message.body }}</span>
-        <span class="stamp">{{ message.timestamp.strftime("%H:%M") }}</span>
-      </div>
-      {% endif %} {% endfor %}
-    </section>
-    <div class="input h-14 dark:bg-slate-900">
-      <span id="plus" class="dark:text-white">+</span>
-      <div id="input-box">
-        <input
-          type="text"
-          placeholder="Type message..."
-          class="msg-input p-2 dark:bg-slate-700 dark:text-white"
-        />
-        <img
-          src="{{ url_for('static',filename='/assets/images/send.png') }}"
-          id="send"
-          alt="send"
-          class="dark:invert"
-        />
+  </div>
+</div>
+
+
+
+  <div id="crud-modal" tabindex="-1" aria-hidden="true"
+    class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+    <div class="relative p-4 w-full max-w-md max-h-full">
+      <!-- Modal content -->
+      <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+        <!-- Modal header -->
+        <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+            Create New Room
+          </h3>
+          <button type="button"
+            class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+            data-modal-toggle="crud-modal">
+            <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+            </svg>
+            <span class="sr-only">Close modal</span>
+          </button>
+        </div>
+        <!-- Modal body -->
+        <form action="{{ url_for('create_room') }}" method="post" class="p-4 md:p-5">
+          <div class="grid gap-4 mb-4">
+            <div class="col-span-2">
+              <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Room Name</label>
+              <input type="text" name="room" id="name"
+                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                placeholder="Type room name" required="">
+            </div>
+
+          </div>
+          <button type="submit"
+            class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+            <svg class="me-1 -ms-1 w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+              <path fill-rule="evenodd"
+                d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+                clip-rule="evenodd"></path>
+            </svg>
+            Create Room
+          </button>
+        </form>
       </div>
     </div>
-    <script>
-      const socket = io.connect(
-        "http://" + document.domain + ":" + location.port
-      );
-      const Active = document.querySelector(".active");
-      const container = document.querySelector(".chat-container");
+  </div>
+  <div id="crud-modal-2" tabindex="-1" aria-hidden="true"
+    class="hidden overflow-y-auto overflow-x-hidden fixed top-0 right-0 left-0 z-50 justify-center items-center w-full md:inset-0 h-[calc(100%-1rem)] max-h-full">
+    <div class="relative p-4 w-full max-w-md max-h-full">
+      <!-- Modal content -->
+      <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+        <!-- Modal header -->
+        <div class="flex items-center justify-between p-4 md:p-5 border-b rounded-t dark:border-gray-600">
+          <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+            Join Room
+          </h3>
+          <button type="button"
+            class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm w-8 h-8 ms-auto inline-flex justify-center items-center dark:hover:bg-gray-600 dark:hover:text-white"
+            data-modal-toggle="crud-modal-2">
+            <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+              <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+            </svg>
+            <span class="sr-only">Close modal</span>
+          </button>
+        </div>
+        <!-- Modal body -->
+        <form action="{{ url_for('join' ) }}" method="get" class="p-4 md:p-5">
+          <div class="grid gap-4 mb-4">
+            <div class="col-span-2">
+              <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Room ID</label>
+              <input type="text" name="room" id="name"
+                class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                placeholder="Enter room ID" required>
+            </div>
 
-      function handleFormSubmit() {
-        var input = document.querySelector(".msg-input");
-        var message = input.value.trim();
-        if (message !== "") {
-          socket.emit("custom_message", {
-            room: "{{ room_id }}",
-            username: "{{ current_user.username }}",
-            message: message,
-          });
-          input.value = "";
-        }
-      }
-      socket.emit("event", {
-        room: "{{ room_id }}",
-        username: "{{ current_user.username }}",
-      });
-      
-      socket.on("mes", (data) => {
-        var username = `${data.user}`;
-        var message = data.msg;
-        var currentUser = "{{ current_user.username }}";
-        var isUser = currentUser == username ? true : false;
-        handleChat(username, message, isUser);
-      });
-      const onlineUsers = document.querySelector(".onl");
-      socket.on("len", (data) => {
-        onlineUsers.innerHTML = "";
-        data["users"].forEach((element) => {
-          const spaner = document.createElement("li");
-          spaner.innerText = element;
-          onlineUsers.appendChild(spaner);
+          </div>
+          <button type="submit"
+            class="text-white inline-flex items-center bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">
+            <svg class="me-1 -ms-1 w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+              <path fill-rule="evenodd"
+                d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+                clip-rule="evenodd"></path>
+            </svg>
+            Join Room
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+  {% with errors = get_flashed_messages(category_filter=["error"]) %}
+  {% if errors %}
+  {% for msg in errors %}
+
+  <div id="alert-2"
+    class="flex items-center p-4 mb-4 mt-9 text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400"
+    role="alert">
+    <svg class="flex-shrink-0 w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+      viewBox="0 0 20 20">
+      <path
+        d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
+    </svg>
+    <span class="sr-only">Info</span>
+    <div class="ms-3 text-sm font-medium">
+      {{ msg }}
+    </div>
+    <button type="button"
+      class="ms-auto -mx-1.5 -my-1.5 bg-red-50 text-red-500 rounded-lg focus:ring-2 focus:ring-red-400 p-1.5 hover:bg-red-200 inline-flex items-center justify-center h-8 w-8 dark:bg-gray-800 dark:text-red-400 dark:hover:bg-gray-700"
+      data-dismiss-target="#alert-2" aria-label="Close">
+      <span class="sr-only">Close</span>
+      <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+      </svg>
+    </button>
+  </div>
+  {% endfor %}
+  {% endif %}
+  {% endwith %}
+  </div>
+  {% with success = get_flashed_messages(category_filter=["success"]) %}
+  {% if success %}
+  {% for suc in success %}
+  <div id="alert-border-3"
+    class="flex items-center p-4 mb-4 mt-9 text-green-800 border-t-4 border-green-300 bg-green-50 dark:text-green-400 dark:bg-gray-800 dark:border-green-800"
+    role="alert">
+    <svg class="flex-shrink-0 w-4 h-4" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor"
+      viewBox="0 0 20 20">
+      <path
+        d="M10 .5a9.5 9.5 0 1 0 9.5 9.5A9.51 9.51 0 0 0 10 .5ZM9.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM12 15H8a1 1 0 0 1 0-2h1v-3H8a1 1 0 0 1 0-2h2a1 1 0 0 1 1 1v4h1a1 1 0 0 1 0 2Z" />
+    </svg>
+    <div class="ms-3 text-sm font-medium">
+      {{ suc }}
+    </div>
+    <button type="button"
+      class="ms-auto -mx-1.5 -my-1.5 bg-green-50 text-green-500 rounded-lg focus:ring-2 focus:ring-green-400 p-1.5 hover:bg-green-200 inline-flex items-center justify-center h-8 w-8 dark:bg-gray-800 dark:text-green-400 dark:hover:bg-gray-700"
+      data-dismiss-target="#alert-border-3" aria-label="Close">
+      <span class="sr-only">Dismiss</span>
+      <svg class="w-3 h-3" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 14 14">
+        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="m1 1 6 6m0 0 6 6M7 7l6-6M7 7l-6 6" />
+      </svg>
+    </button>
+  </div>
+  {% endfor %}
+  {% endif %}
+  {% endwith %}
+
+  <section class="chat-container">
+    {% for message in messages %}{% if message.author.username ==
+    current_user.username %}
+    <div class="message sent dark:bg-teal-900 dark:text-white">
+      <span class="user">{{ message.author.username }}</span>
+      <span class="message-body">{{ message.body }}</span>
+      <span class="stamp">{{ message.timestamp.strftime("%H:%M") }}</span>
+    </div>
+    {% else %}
+    <div class="message received dark:bg-gray-800 dark:text-white">
+      <span class="user">{{ message.author.username }}</span>
+      <span class="message-body">{{ message.body }}</span>
+      <span class="stamp">{{ message.timestamp.strftime("%H:%M") }}</span>
+    </div>
+    {% endif %} {% endfor %}
+  </section>
+  <div class="input h-14 dark:bg-slate-900">
+    <span id="plus" class="dark:text-white">+</span>
+    <div id="input-box">
+      <input type="text" placeholder="Type message..." class="msg-input p-2 dark:bg-slate-700 dark:text-white" />
+      <img src="{{ url_for('static',filename='/assets/images/send.png') }}" id="send" alt="send" class="dark:invert" />
+    </div>
+  </div>
+  <script>
+    const socket = io.connect(
+      "http://" + document.domain + ":" + location.port
+    );
+    document.getElementById('invite_link').innerText = "http://" + document.domain + ":" + location.port + "{{ url_for('join') }}?room={{ room_id }}"
+    const Active = document.querySelector(".active");
+    const container = document.querySelector(".chat-container");
+
+    function handleFormSubmit() {
+      var input = document.querySelector(".msg-input");
+      var message = input.value.trim();
+      if (message !== "") {
+        socket.emit("custom_message", {
+          room: "{{ room_id }}",
+          username: "{{ current_user.username }}",
+          message: message,
         });
-        Active.innerHTML = `${data["len"]} online`;
-        
+        input.value = "";
+      }
+    }
+    socket.emit("event", {
+      room: "{{ room_id }}",
+      username: "{{ current_user.username }}",
+    });
+
+    socket.on("mes", (data) => {
+      var username = `${data.user}`;
+      var message = data.msg;
+      var currentUser = "{{ current_user.username }}";
+      var isUser = currentUser == username ? true : false;
+      handleChat(username, message, isUser);
+    });
+    const onlineUsers = document.querySelector(".onl");
+    socket.on("len", (data) => {
+      onlineUsers.innerHTML = "";
+      data["users"].forEach((element) => {
+        const spaner = document.createElement("li");
+        spaner.innerText = element;
+        onlineUsers.appendChild(spaner);
       });
-    </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.0/flowbite.min.js"></script>
-    <script src="{{ url_for('static',filename='chat-demo.js')}}"></script>
-  </body>
+      Active.innerHTML = `${data["len"]} online`;
+
+    });
+  </script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.0/flowbite.min.js"></script>
+  <script src="{{ url_for('static',filename='/js/chat-demo.js')}}"></script>
+</body>
+
 </html>
