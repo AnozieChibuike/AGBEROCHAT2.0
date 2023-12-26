@@ -20,6 +20,22 @@ body {
     background: url('/static/assets/images/wallpaper_dark.png') no-repeat center center fixed;
     background-size: cover;
 }
+
+.error-message {
+    position: fixed;
+    top: 20vh;
+    border-radius: 7px;
+    left: 33vw;
+    right: 33vw;
+    background-color: #ff0000;
+    color: #fff;
+    padding: 20px;
+    text-align: center;
+    font-size: 18px;
+    transition: opacity 0.5s;
+    z-index: 200;
+}
+
 .chat-container {
     max-width: 600px;
     margin: 20px auto;

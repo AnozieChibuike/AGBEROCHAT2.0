@@ -1,6 +1,6 @@
 
 document.getElementById("send").addEventListener("click", handleFormSubmit);
-document.querySelector("input").addEventListener("keypress", () => {
+document.querySelector(".msg-input").addEventListener("keypress", () => {
   if (event.key === "Enter") {
     handleFormSubmit();
   } else {

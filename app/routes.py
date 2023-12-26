@@ -65,14 +65,15 @@ def home():
 @app.route('/signup', methods=["POST", "GET"])
 def signup():
     if request.method == "POST":
+        general = Rooms.query.filter_by(name='General').first()
         username = request.form['username']
         email = request.form['email']
         password = request.form['password']
         if Users.query.filter_by(email=email).first() is None and Users.query.filter_by(username=username).first() is None:
             user = Users(username=username, email=email)
+            user.rooms.append(general)
             user.set_password(password)
-            db.session.add(user)
-            db.session.commit()
+            user.save()
             return redirect('/login')
         else:
             flash('Users exists!')
@@ -100,7 +101,7 @@ def login():
         db.session.add(p)
         db.session.commit()
         if not next_page or urlsplit(next_page).netloc != '':
-            next_page = url_for('chatroom',room='gEN')
+            next_page = url_for('chatroom',room=Rooms.query.filter_by(name='General').first().id)
         return redirect(next_page)
     return rd("login.html.jinja")
 
@@ -129,19 +130,38 @@ def handleMessage(data):
     p.save()
     socket.emit('mes', {'user': u.username, 'msg': data['message']},to=data['room'])
     
-@app.route('/chatbox', methods=['POST', 'GET'])
+@app.get('/chatbox')
 @login_required
 def chatroom():
     room = request.args.get('room')
     user_rooms = current_user.rooms
     if not room:
+        flash("Bad request",'error')
         return redirect(url_for('chatroom',room=Rooms.query.filter_by(name='General').first().id))
     Room = Rooms.get(id=room)
     if not Room:
+        flash("Room does not exist",'error')
+        return redirect(url_for('chatroom',room=Rooms.query.filter_by(name='General').first().id))
+    if current_user not in Room.users:
+        flash("Not a member of Room, request invite link from admin",'error')
         return redirect(url_for('chatroom',room=Rooms.query.filter_by(name='General').first().id))
     return rd('chat-demo.html', room_id=Room.id,room_name=Room.name,users=Room.users,messages=Room.messages.all(),user_rooms=user_rooms)
 
+@app.post('/create_room')
+@login_required
+def create_room():
+    name = request.form['room']
+    owner = current_user
+    room = Rooms(name=name)
+    room.users.append(owner)
+    room.save()
+    flash('Chatroom created successfully','success')
+    return redirect(url_for('chatroom',room=room.id))
 
+@app.post('/join')
+@login_required
+def join():
+    return 'Nice'
 
 # API
 
