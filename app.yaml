@@ -1,5 +1,5 @@
 runtime: python311
-entrypoint: gunicorn -b :$PORT main:app
+entrypoint: gunicorn -k geventwebsocket.gunicorn.workers.GeventWebSocketWorker -w 1 server:app
 
 handlers:
 - url: /.*

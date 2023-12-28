@@ -6,6 +6,6 @@ def make_shell_context():
     return {'db': db,'Users':Users}
 
 
-
-if __name__ == "__main__":
-    socket.run(app=app,debug=True,host='0.0.0.0')
+if not app.config['DEPLOYMENT']:
+    if __name__ == "__main__":
+        socket.run(app=app,debug=True,host='0.0.0.0')
