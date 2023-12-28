@@ -1,4 +1,3 @@
-import ngrok
 from app import app, db, socket
 from flask_socketio import disconnect, join_room, leave_room, rooms
 from flask import request, flash, session, redirect, url_for,jsonify
