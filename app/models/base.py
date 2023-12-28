@@ -81,6 +81,6 @@ class BaseModel(db.Model):
 
 user_room_association = db.Table(
     'user_room_association',
-    db.Column('user_id', db.Integer, db.ForeignKey('users.id')),
-    db.Column('room_id', db.Integer, db.ForeignKey('rooms.id'))
+    db.Column('user_id', db.String(120), db.ForeignKey('users.id')),
+    db.Column('room_id', db.String(120), db.ForeignKey('rooms.id'))
 )
