@@ -76,6 +76,15 @@
 
     <div class="signup-container">
         <h1>Create an Account</h1>
+
+        <div style='display: flex; margin-left: 33vw; cursor: pointer; box-sizing: border-box; border: 1px solid red; width: 100px; align-items: center; background: red'>
+        <img 
+            style='width: 40%; background: white;' src="{{ url_for('static',filename='assets/images/google.png') }}">
+        <a href="{{ url_for('authorize',provider='google')}}" style="text-decoration: none; color: white; margin-left: 3px">
+            Google
+        </a>    
+        </div>
+
         <form method="POST">
             <label for="username">Username:</label>
             <input type="text" id="username" name="username" required>

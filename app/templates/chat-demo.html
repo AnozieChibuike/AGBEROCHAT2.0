@@ -280,17 +280,23 @@
   <section class="chat-container">
     {% for message in messages %}{% if message.author.username ==
     current_user.username %}
-    <div class="message sent dark:bg-teal-900 dark:text-white">
-      <span class="user">{{ message.author.username }}</span>
-      <span class="message-body">{{ message.body }}</span>
-      <span class="stamp">{{ message.timestamp.strftime("%H:%M") }}</span>
+    <div class="sent-father">
+      <div class="message sent dark:bg-teal-900 dark:text-white">
+        <span class="user">{{ message.author.username }}</span>
+        <span class="message-body">{{ message.body }}</span>
+        <span class="stamp">{{ message.timestamp.strftime("%H:%M") }}</span>
+      </div>
+      <img src="{{ message.author.image_url }}">
     </div>
     {% else %}
+    <div class="received-father">
+    <img src="{{ message.author.image_url }}">
     <div class="message received dark:bg-gray-800 dark:text-white">
       <span class="user">{{ message.author.username }}</span>
       <span class="message-body">{{ message.body }}</span>
       <span class="stamp">{{ message.timestamp.strftime("%H:%M") }}</span>
     </div>
+  </div>
     {% endif %} {% endfor %}
   </section>
   <div class="input h-14 dark:bg-slate-900">
@@ -330,7 +336,8 @@
       var message = data.msg;
       var currentUser = "{{ current_user.username }}";
       var isUser = currentUser == username ? true : false;
-      handleChat(username, message, isUser);
+      var imageUrl = "{{ current_user.image_url }}"
+      handleChat(username, message, isUser, imageUrl);
     });
     const onlineUsers = document.querySelector(".onl");
     socket.on("len", (data) => {

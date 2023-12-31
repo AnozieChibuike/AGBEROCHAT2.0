@@ -1,13 +1,103 @@
 from app import app, db, socket
 from flask_socketio import disconnect, join_room, leave_room, rooms
-from flask import request, flash, session, redirect, url_for,jsonify
+from flask import abort,request, flash, session, redirect, url_for,jsonify
 from flask import render_template as rd
 from app.models import Users, Msg, Rooms
 from flask_login import current_user, login_user, logout_user, login_required
 from urllib.parse import urlsplit
-
+from urllib.parse import urlencode
+import requests
+import secrets
 
 users = {}
+
+
+
+
+
+@app.route('/authorize/<provider>')
+def authorize(provider):
+    if not current_user.is_anonymous:
+        return redirect(url_for('chatroom',room=Rooms.query.filter_by(name='General').first().id))
+    provider_data = app.config['OAUTH2_PROVIDERS'].get(provider)
+    if provider_data is None:
+        abort(404)
+    # generate a random string for the state parameter
+    session['oauth2_state'] = secrets.token_urlsafe(16)
+
+    # create a query string with all the OAuth2 parameters
+    qs = urlencode({
+        'client_id': provider_data['client_id'],
+        'redirect_uri': url_for('oauth2_callback', provider=provider,
+                                _external=True),
+        'response_type': 'code',
+        'scope': ' '.join(provider_data['scopes']),
+        'state': session['oauth2_state'],
+    })
+    # redirect the user to the OAuth2 provider authorization URL
+    return redirect(provider_data['authorize_url'] + '?' + qs)
+
+@app.route('/callback/<provider>')
+def oauth2_callback(provider):
+    if not current_user.is_anonymous:
+        return redirect(url_for('chatroom',room=Rooms.query.filter_by(name='General').first().id))
+
+    provider_data = app.config['OAUTH2_PROVIDERS'].get(provider)
+    if provider_data is None:
+        abort(404)
+
+    # if there was an authentication error, flash the error messages and exit
+    if 'error' in request.args:
+        for k, v in request.args.items():
+            if k.startswith('error'):
+                print(f'{k}: {v}')
+        return redirect(url_for('index'))
+
+    # make sure that the state parameter matches the one we created in the
+    # authorization request
+    if request.args['state'] != session.get('oauth2_state'):
+        abort(401)
+
+    # make sure that the authorization code is present
+    if 'code' not in request.args:
+        abort(401)
+
+    # exchange the authorization code for an access token
+    response = requests.post(provider_data['token_url'], data={
+        'client_id': provider_data['client_id'],
+        'client_secret': provider_data['client_secret'],
+        'code': request.args['code'],
+        'grant_type': 'authorization_code',
+        'redirect_uri': url_for('oauth2_callback', provider=provider,
+                                _external=True),
+    }, headers={'Accept': 'application/json'})
+    if response.status_code != 200:
+        abort(401)
+    oauth2_token = response.json().get('access_token')
+    if not oauth2_token:
+        abort(401)
+
+    # use the access token to get the user's email address
+    response = requests.get(provider_data['userinfo']['url'], headers={
+        'Authorization': 'Bearer ' + oauth2_token,
+        'Accept': 'application/json',
+    })
+    if response.status_code != 200:
+        abort(401)
+    user_data = provider_data['userinfo']['data'](response.json())
+
+    user = Users.get(email=user_data['email'])
+    if user is None:
+        general = Rooms.query.filter_by(name='General').first()
+        user = Users(email=user_data['email'],image_url=user_data['picture'],username=user_data["email"].split('@')[0])
+        user.rooms.append(general)
+        user.save()
+    
+    login_user(user)
+    # log the user in
+    return redirect(url_for('chatroom',room=Rooms.query.filter_by(name='General').first().id))
+
+
 
 @socket.on('event')
 def disev(data):

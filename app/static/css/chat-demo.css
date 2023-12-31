@@ -54,10 +54,38 @@ body {
     display: flex;
     flex-direction: column;
 }
+.sent-father {
+    align-self: flex-end;
+    display: flex;
+    justify-content: end;
+    margin-top: 10px;
+}
+
+.received-father {
+    margin-top: 10px;
+    display: flex;
+    align-self: flex-start;
+    justify-content: start;
+}
+
 .sent {
     background-color: #dcf8c6;
     align-self: flex-end;
 }
+.sent-father img {
+    width: 40px;
+    margin-top: 10px;
+    align-self: flex-start;
+    border-radius: 2em;
+}
+
+.received-father img {
+    width: 40px;
+    border-radius: 2em;
+    margin-top: 10px;
+    align-self: flex-start;
+}
+
 .received {
     background-color: #fff;
     align-self: flex-start;

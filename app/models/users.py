@@ -1,4 +1,5 @@
 from app import db,login
+from flask import url_for
 from flask_login import UserMixin
 from werkzeug.security import generate_password_hash, check_password_hash
 from app.models.base import BaseModel, user_room_association
@@ -10,6 +11,7 @@ class Users(UserMixin,BaseModel):
     is_admin = db.Column(db.Boolean,default=False)
     msg = db.relationship('Msg', backref='author', lazy='dynamic')
     rooms = db.relationship('Rooms', secondary=user_room_association,backref='user')
+    image_url = db.Column(db.String(120),default='/static/assets/images/profile.jpg')
     
     def set_password(self, password):
         self.password_hash = generate_password_hash(password,method="pbkdf2:sha256")

@@ -18,7 +18,7 @@ function makeLinksClickable(message) {
   });
 
 
-const handleChat = (username, message, isSelf) => {
+const handleChat = (username, message,isSelf, imageUrl) => {
   const date = new Date();
   const hours =
     Number(date.getHours()) < 10 ? `0${date.getHours()}` : date.getHours();
@@ -31,6 +31,10 @@ const handleChat = (username, message, isSelf) => {
   const user = document.createElement("span");
   const stamp = document.createElement("span");
   const msg = document.createElement("span");
+  const father = document.createElement("div")
+  const image = document.createElement('img')
+  image.src = imageUrl
+  father.classList.add(isSelf ? "sent-father":"received-father")
   messag.classList.add("message", "dark:text-white");
   messag.classList.add(isSelf ? "dark:bg-teal-900" : "dark:bg-gray-800");
   messag.classList.add(isSelf ? "sent" : "received");
@@ -42,7 +46,12 @@ const handleChat = (username, message, isSelf) => {
   messag.appendChild(user);
   messag.appendChild(msg);
   messag.appendChild(stamp);
-  container.appendChild(messag);
+  father.appendChild(messag);
+  if (father.classList.contains('received-father'))
+    father.insertBefore(image,messag)
+  else
+    father.appendChild(image)
+  container.appendChild(father);
   window.scrollTo({
     top: container.scrollHeight,
     behavior: "smooth",
