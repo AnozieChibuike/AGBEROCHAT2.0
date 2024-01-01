@@ -336,7 +336,7 @@
       var message = data.msg;
       var currentUser = "{{ current_user.username }}";
       var isUser = currentUser == username ? true : false;
-      var imageUrl = "{{ current_user.image_url }}"
+      var imageUrl = data.imageUrl
       handleChat(username, message, isUser, imageUrl);
     });
     const onlineUsers = document.querySelector(".onl");

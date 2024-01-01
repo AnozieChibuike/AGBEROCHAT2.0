@@ -196,7 +196,7 @@ def handleMessage(data):
     room = Rooms.get(id=data['room'])
     p = Msg(body=data['message'], author=u,room=room)
     p.save()
-    socket.emit('mes', {'user': u.username, 'msg': data['message']},to=data['room'])
+    socket.emit('mes', {'user': u.username,'imageUrl':u.image_url, 'msg': data['message']},to=data['room'])
     
 @app.get('/chatbox')
 @login_required
