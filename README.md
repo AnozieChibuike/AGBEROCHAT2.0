@@ -1,0 +1,1 @@
+For now contributions are only needed for UIs, refer to the hosted [link](https://flask-app-404911.uc.r.appspot.com/) for reference, Check Milestone for possible PRs. Please push all UIs to the TEMPLATES folder?
