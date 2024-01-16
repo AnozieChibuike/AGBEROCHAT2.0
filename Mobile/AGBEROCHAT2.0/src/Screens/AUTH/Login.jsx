@@ -1,5 +1,6 @@
 // Login Screen
 import base_url from '../../../constants/base_url'
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Input from "../../Components/Input";
 import Logo from "../../Components/Logo";
@@ -65,7 +66,8 @@ export default Login = ({navigation, route}) => {
       if (data.error) {
         handleError(data.error, data.from)
       } else {
-        Alert.alert('Success','Signed in Success but you can"t login now🥹😭')
+        AsyncStorage.setItem("userData", JSON.stringify(data.data));
+        navigation.navigate('Home')
       }
     } catch (error) {
       Alert.alert("Error", error.message);

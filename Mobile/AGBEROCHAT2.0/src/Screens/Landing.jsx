@@ -1,5 +1,5 @@
 // Landing Screen
-
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { SafeAreaView } from "react-native-safe-area-context";
 import style from "../../constants/style";
 import { View } from "react-native";
@@ -7,8 +7,18 @@ import Button from "../Components/Button";
 import colors from "../../constants/colors";
 import { height, width } from "../../constants/scale";
 import Logo from "../Components/Logo";
+import { useEffect } from "react";
 
-export default Landing = ({navigation}) => {
+export default Landing = ({ navigation }) => {
+  useEffect(() => {
+    getUser();
+  },[]);
+  const getUser = async () => {
+    let user = await AsyncStorage.getItem("userData");
+    if (user)
+     navigation.navigate('Home')
+  };
+
   return (
     <SafeAreaView style={[style.container, { position: "relative" }]}>
       <View
@@ -33,14 +43,14 @@ export default Landing = ({navigation}) => {
           text="Signup"
           color="white"
           bg={colors.yellow}
-          onPress={() => navigation.navigate('Signup')}
+          onPress={() => navigation.navigate("Signup")}
         />
 
         <Button
           text="Login"
           color="white"
           bg={colors.faintBlue}
-          onPress={() => navigation.navigate('Login')}
+          onPress={() => navigation.navigate("Login")}
         />
       </View>
     </SafeAreaView>

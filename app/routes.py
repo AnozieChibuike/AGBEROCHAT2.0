@@ -376,7 +376,8 @@ def apiRooms():
         user = Users.get(id=id)
         if not user:
             return jsonify({'error': 'User does not exist'}), 404
-        users_rooms = [i.to_dict() for i in user.rooms]
+        users_rooms = [{'id': i.id,'name': i.name, 'messages': [k.to_dict() for k in i.messages.all()]} for i in user.rooms]
+        # user_rooms_ = list(map(lambda x: for i in user.rooms))
         return ({'data': users_rooms,'user': user.to_dict()})
     except:
         return jsonify({'error': 'Parameters missing'}), 404 
