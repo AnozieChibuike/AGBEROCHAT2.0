@@ -318,9 +318,9 @@ def join():
 
 
 # API
-@app.route('/api/users')
+@app.post('/api/users')
 def apiUsers():
-    data = request.args
+    data = request.json
     id = data.get('id')
     email = data.get('email')
     users = [i.to_dict() for i in Users.all()]
@@ -332,23 +332,23 @@ def apiUsers():
         return jsonify({'data':value})
     return jsonify({'data': users})
 
-@app.route('/api/login')
+@app.post('/api/login')
 def apiLogin():
-    data = request.args
+    data = request.json
     try:
         email,password = data['email'],data['password']
         user = Users.get(email=email)
         if not user:
-            return jsonify({'error': 'User does not exist'}), 404
+            return jsonify({'error': 'User does not exist','from': 'email'}), 404
         if not user.check_password(password):
-            return jsonify({'error': 'Incorrect Password'}), 404
+            return jsonify({'error': 'Incorrect Password','from': 'password'}), 404
         return({'data': user.to_dict(),'success': 'Logged in'})
     except:
         return jsonify({'error': 'Parameters missing'}), 404
     
-@app.route('/api/signup')
+@app.post('/api/signup')
 def apiSignUp():
-    data = request.args
+    data = request.json
     general = Rooms.query.filter_by(name="General").first()
     try:
         username = data['username']
@@ -356,8 +356,10 @@ def apiSignUp():
         password = data['password']
         user = Users.get(email=email)
         usern = Users.get(username=username)
-        if user or usern:
-            return jsonify({'message': 'user exists'}), 404
+        if usern:
+            return jsonify({'error': 'user exists with supplied username', 'from': 'username'}), 404
+        if user:
+            return jsonify({'error': 'user exists with supplied email', 'from': 'email'}), 404
         user =  Users(email=email,username=username)
         user.set_password(password)
         user.rooms.append(general)
@@ -366,9 +368,9 @@ def apiSignUp():
     except:
         return jsonify({'error': 'Parameters missing'}), 404
 
-@app.route('/api/user/room')
+@app.post('/api/user/room')
 def apiRooms():
-    data=request.args
+    data=request.json
     try:
         id = data['id']
         user = Users.get(id=id)
@@ -379,9 +381,9 @@ def apiRooms():
     except:
         return jsonify({'error': 'Parameters missing'}), 404 
         
-@app.route('/api/room/members')
+@app.post('/api/room/members')
 def room_members():
-    data=request.args
+    data=request.json
     try:
         id = data['id']
         room = Rooms.get(id=id)
@@ -394,7 +396,7 @@ def room_members():
     
 @app.post("/api/create_room")
 def api_create_room():
-    data = request.args
+    data = request.json
     try:
         name = data["name"]
         user = Users.get(id=data['user_id'])
@@ -408,9 +410,9 @@ def api_create_room():
         return jsonify({'error': 'Parameters missing'}), 404 
     
 
-@app.get("/api/join")
-def join():
-    data = request.args
+@app.post("/api/join")
+def api_join():
+    data = request.json
     try:
         room = Rooms.get(id=data['room_id'])
         if not room:

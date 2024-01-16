@@ -13,10 +13,11 @@ import {
   View,
 } from "react-native";
 import colors from "../../../constants/colors";
+import base_url from "../../../constants/base_url";
 
-export default Signup = ({navigation}) => {
+export default Signup = ({ navigation }) => {
   const [loading, setLoading] = useState(false);
-  const [top, setTop] = useState(50);
+  const [top, setTop] = useState(30);
   const [inputs, setInputs] = useState({
     email: "",
     password: "",
@@ -55,7 +56,25 @@ export default Signup = ({navigation}) => {
 
   async function register() {
     setLoading(true);
-    setTimeout(() => setLoading(false), 3000);
+    try {
+      const response = await fetch(`${base_url}/api/signup`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(inputs),
+      });
+      const data = await response.json();
+      if (data.error) {
+        handleError(data.error, data.from);
+      } else {
+        navigation.navigate("Login", { message: "Registration successful" });
+      }
+    } catch (error) {
+      Alert.alert("Error", error.message);
+    } finally {
+      setLoading(false);
+    }
   }
 
   const handleError = (error, input) => {
@@ -73,6 +92,7 @@ export default Signup = ({navigation}) => {
             <View style={{ marginTop: top }}>
               <Logo text="Signup" />
               <Input
+                value={inputs.email}
                 label="E-mail address"
                 onfocus={() => {
                   handleError(null, "email");
@@ -81,13 +101,14 @@ export default Signup = ({navigation}) => {
                 error={errors.email}
                 placeholder="user@example.com"
                 onblur={() => {
-                  setTop(40);
+                  setTop(10);
                 }}
                 onChangeText={(text) => {
                   handleChange(text, "email");
                 }}
               />
               <Input
+                value={inputs.username}
                 label="Username"
                 placeholder="John Doe"
                 onfocus={() => {
@@ -95,7 +116,7 @@ export default Signup = ({navigation}) => {
                   setTop(0);
                 }}
                 onblur={() => {
-                  setTop(40);
+                  setTop(10);
                 }}
                 error={errors.username}
                 onChangeText={(text) => {
@@ -103,6 +124,7 @@ export default Signup = ({navigation}) => {
                 }}
               />
               <Input
+                value={inputs.password}
                 label="Password"
                 placeholder="********"
                 onfocus={() => {
@@ -118,9 +140,11 @@ export default Signup = ({navigation}) => {
                 }}
                 password={true}
               />
-              <View style={{display: 'flex', flexDirection: 'row', marginTop: 10}}>
+              <View
+                style={{ display: "flex", flexDirection: "row", marginTop: 10 }}
+              >
                 <Text style={{ color: "grey" }}>Already have an account? </Text>
-                <TouchableOpacity onPress={()=> navigation.navigate('Login')}>
+                <TouchableOpacity onPress={() => navigation.navigate("Login")}>
                   <Text style={{ color: colors.yellow }}>Log in</Text>
                 </TouchableOpacity>
               </View>

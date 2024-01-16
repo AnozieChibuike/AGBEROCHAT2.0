@@ -1,11 +1,12 @@
 // Login Screen
-
+import base_url from '../../../constants/base_url'
 import { SafeAreaView } from "react-native-safe-area-context";
 import Input from "../../Components/Input";
 import Logo from "../../Components/Logo";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   Keyboard,
   Text,
   TouchableOpacity,
@@ -14,7 +15,7 @@ import {
 } from "react-native";
 import colors from "../../../constants/colors";
 
-export default Login = ({navigation}) => {
+export default Login = ({navigation, route}) => {
   const [loading, setLoading] = useState(false);
   const [top, setTop] = useState(50);
   const [inputs, setInputs] = useState({
@@ -22,7 +23,10 @@ export default Login = ({navigation}) => {
     password: "",
   });
   const [errors, setErrors] = useState({});
-
+  useEffect(()=>{
+    if (route?.params?.message)
+      Alert.alert('Message', route.params.message)
+  },[])
   const validate = () => {
     Keyboard.dismiss();
     let isValid = true;
@@ -47,7 +51,27 @@ export default Login = ({navigation}) => {
 
   async function login() {
     setLoading(true);
-    setTimeout(() => setLoading(false), 3000);
+    try {
+      const response = await fetch(
+        `${base_url}/api/login`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(inputs)
+        }
+      );
+      const data = await response.json();
+      if (data.error) {
+        handleError(data.error, data.from)
+      } else {
+        Alert.alert('Success','Signed in Success but you can"t login now🥹😭')
+      }
+    } catch (error) {
+      Alert.alert("Error", error.message);
+    } finally {
+      setLoading(false);
+    }
   }
 
   const handleError = (error, input) => {
@@ -65,6 +89,7 @@ export default Login = ({navigation}) => {
             <View style={{ marginTop: top }}>
               <Logo text="Login" />
               <Input
+              value={inputs.email}
                 label="E-mail address"
                 onfocus={() => {
                   handleError(null, "email");
@@ -80,6 +105,7 @@ export default Login = ({navigation}) => {
                 }}
               />
               <Input
+                value={inputs.password}
                 label="Password"
                 placeholder="********"
                 onfocus={() => {
