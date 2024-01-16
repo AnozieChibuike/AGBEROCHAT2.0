@@ -131,6 +131,37 @@ def disev(data):
 
     socket.emit("len", {"len": len(users_in_room), "users": users_in_room}, to=_room)
 
+@socket.on("disconnect")
+def _disconnect():
+    del users[current_user.username]
+
+
+@socket.on("custom_message")
+def handleMessage(data):
+    u = current_user
+    room = Rooms.get(id=data["room"])
+    p = Msg(body=data["message"], author=u, room=room)
+    p.save()
+    socket.emit(
+        "mes",
+        {"user": u.username, "imageUrl": u.image_url, "msg": data["message"]},
+        to=data["room"],
+    )
+
+
+@socket.on("api_message")
+def handleMessage(data):
+    u = data['user_id']
+    room = Rooms.get(id=data["room_id"])
+    p = Msg(body=data["message"], author=u, room=room)
+    p.save()
+    socket.emit(
+        "mes",
+        {"user": u.username, "imageUrl": u.image_url, "msg": data["message"]},
+        to=data["room"],
+    )
+
+
 
 def get_admin_info():
     info = Users.query.filter_by(username="info").first()
@@ -144,9 +175,6 @@ def get_admin_info():
         return info
 
 
-@socket.on("disconnect")
-def _disconnect():
-    del users[current_user.username]
 
 
 @app.route("/logout")
@@ -219,18 +247,6 @@ def login():
     return rd("login.html.jinja")
 
 
-@socket.on("custom_message")
-def handleMessage(data):
-    u = current_user
-    room = Rooms.get(id=data["room"])
-    p = Msg(body=data["message"], author=u, room=room)
-    p.save()
-    socket.emit(
-        "mes",
-        {"user": u.username, "imageUrl": u.image_url, "msg": data["message"]},
-        to=data["room"],
-    )
-
 
 @app.get("/chatbox")
 @login_required
@@ -302,57 +318,111 @@ def join():
 
 
 # API
+@app.route('/api/users')
+def apiUsers():
+    data = request.args
+    id = data.get('id')
+    email = data.get('email')
+    users = [i.to_dict() for i in Users.all()]
+    if id:
+        value = list(filter(lambda x: x['id'] == id,users)) 
+        return jsonify({'data':value})
+    if email:
+        value = list(filter(lambda x: x['email'] == email,users)) 
+        return jsonify({'data':value})
+    return jsonify({'data': users})
 
+@app.route('/api/login')
+def apiLogin():
+    data = request.args
+    try:
+        email,password = data['email'],data['password']
+        user = Users.get(email=email)
+        if not user:
+            return jsonify({'error': 'User does not exist'}), 404
+        if not user.check_password(password):
+            return jsonify({'error': 'Incorrect Password'}), 404
+        return({'data': user.to_dict(),'success': 'Logged in'})
+    except:
+        return jsonify({'error': 'Parameters missing'}), 404
+    
+@app.route('/api/signup')
+def apiSignUp():
+    data = request.args
+    general = Rooms.query.filter_by(name="General").first()
+    try:
+        username = data['username']
+        email = data['email']
+        password = data['password']
+        user = Users.get(email=email)
+        usern = Users.get(username=username)
+        if user or usern:
+            return jsonify({'message': 'user exists'}), 404
+        user =  Users(email=email,username=username)
+        user.set_password(password)
+        user.rooms.append(general)
+        user.save()
+        return ({'data': user.to_dict(),'success': 'Signed up'})
+    except:
+        return jsonify({'error': 'Parameters missing'}), 404
 
-# Get messages by user id
-@app.route("/api/get-user-messages")
-def getUserMessages():
-    id = request.args.get("id")
-    if not id:
-        return jsonify({"message": "Params not found"}), 301
-    user = Users.query.get(id)
-    if not user:
-        return jsonify({"message": "Resource not found"}), 406
-    msg = Msg.query.filter_by(user_id=id).all()
-    if not msg:
-        return jsonify({"message": "User has no messages"})
-    list_of_msg = [{"id": i.id, "body": i.body} for i in msg]
-    data = {"user": user.username, "messages": list_of_msg}
-    return jsonify(data)
+@app.route('/api/user/room')
+def apiRooms():
+    data=request.args
+    try:
+        id = data['id']
+        user = Users.get(id=id)
+        if not user:
+            return jsonify({'error': 'User does not exist'}), 404
+        users_rooms = [i.to_dict() for i in user.rooms]
+        return ({'data': users_rooms,'user': user.to_dict()})
+    except:
+        return jsonify({'error': 'Parameters missing'}), 404 
+        
+@app.route('/api/room/members')
+def room_members():
+    data=request.args
+    try:
+        id = data['id']
+        room = Rooms.get(id=id)
+        if not room:
+            return jsonify({'error': 'Room does not exist'}), 404
+        room_members = [i.to_dict() for i in room.users]
+        return ({'data': room_members,'room': room.to_dict()})
+    except:
+        return jsonify({'error': 'Parameters missing'}), 404 
+    
+@app.post("/api/create_room")
+def api_create_room():
+    data = request.args
+    try:
+        name = data["name"]
+        user = Users.get(id=data['user_id'])
+        if not user:
+            return jsonify({'error': 'User does not exist'}), 404
+        room = Rooms(name=name)
+        room.users.append(user)
+        room.save()
+        return ({'user': user.to_dict(),'success': 'Created', 'room': room.to_dict()})
+    except:
+        return jsonify({'error': 'Parameters missing'}), 404 
+    
 
-
-# To get User by id
-@app.route("/api/user")
-def getuser():
-    id = request.args.get("id")
-    if not id:
-        return jsonify({"message": "Params not found"}), 301
-    user = Users.query.get(id)
-    if not user:
-        return jsonify({"message": "No user found"}), 301
-    list_of_user = {"id": user.id, "username": user.username}
-    data = {"data": list_of_user, "message": "success"}
-    return jsonify(data)
-
-
-# to get all users no required param
-@app.route("/api/get-all-user")
-def getalluser():
-    user = Users.query.all()
-    if not user:
-        return jsonify({"message": "No user found"}), 301
-    list_of_user = [{"id": i.id, "username": i.username} for i in user]
-    data = {"data": list_of_user, "message": "success"}
-    return jsonify(data)
-
-
-@app.route("/api/get-all-messages")
-def getallmsg():
-    msg = Msg.query.all()
-    if not msg:
-        return jsonify({"message": "No msg found"}), 301
-    list_of_msg = [
-        {"id": i.id, "msg": i.body, "author": i.author.username} for i in msg
-    ]
-    data = {"data": list_of_msg, "message": "success"}
-    return jsonify(data)
+@app.get("/api/join")
+def join():
+    data = request.args
+    try:
+        room = Rooms.get(id=data['room_id'])
+        if not room:
+            return jsonify({'error': 'Room does not exist'}), 404
+        user = Users.get(id=data['user_id'])
+        if not user:
+            return jsonify({'error': 'User does not exist'}), 404
+        if user in room.users:
+            return jsonify({'error': 'Already a member of room'}), 404
+        room.users.append(current_user)
+        room.save()
+        return ({'user': user.to_dict(),'success': 'Joined', 'room': room.to_dict()})
+    except:
+        return jsonify({'error': 'Parameters missing'}), 404 
+    
