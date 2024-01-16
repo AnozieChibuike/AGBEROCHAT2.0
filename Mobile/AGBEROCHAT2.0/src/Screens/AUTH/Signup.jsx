@@ -3,17 +3,18 @@
 import { SafeAreaView } from "react-native-safe-area-context";
 import Input from "../../Components/Input";
 import Logo from "../../Components/Logo";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
   ActivityIndicator,
   Keyboard,
+  Text,
   TouchableOpacity,
   TouchableWithoutFeedback,
   View,
 } from "react-native";
-import { height, width } from "../../../constants/scale";
+import colors from "../../../constants/colors";
 
-export default Signup = () => {
+export default Signup = ({navigation}) => {
   const [loading, setLoading] = useState(false);
   const [top, setTop] = useState(50);
   const [inputs, setInputs] = useState({
@@ -69,14 +70,19 @@ export default Signup = () => {
           />
         ) : (
           <>
-            <View style={{marginTop: top}}>
+            <View style={{ marginTop: top }}>
               <Logo text="Signup" />
               <Input
                 label="E-mail address"
-                onfocus={() => {handleError(null, "email");setTop(0)} }
+                onfocus={() => {
+                  handleError(null, "email");
+                  setTop(0);
+                }}
                 error={errors.email}
                 placeholder="user@example.com"
-                onblur={()=> {setTop(40)}}
+                onblur={() => {
+                  setTop(40);
+                }}
                 onChangeText={(text) => {
                   handleChange(text, "email");
                 }}
@@ -84,8 +90,13 @@ export default Signup = () => {
               <Input
                 label="Username"
                 placeholder="John Doe"
-                onfocus={() => {handleError(null, "username"); setTop(0)}}
-                onblur={()=> {setTop(40)}}
+                onfocus={() => {
+                  handleError(null, "username");
+                  setTop(0);
+                }}
+                onblur={() => {
+                  setTop(40);
+                }}
                 error={errors.username}
                 onChangeText={(text) => {
                   handleChange(text, "username");
@@ -94,14 +105,25 @@ export default Signup = () => {
               <Input
                 label="Password"
                 placeholder="********"
-                onfocus={() => {handleError(null, "password"); setTop(-150)}}
-                onblur={()=> {setTop(40)}}
+                onfocus={() => {
+                  handleError(null, "password");
+                  setTop(-150);
+                }}
+                onblur={() => {
+                  setTop(40);
+                }}
                 error={errors.password}
                 onChangeText={(text) => {
                   handleChange(text, "password");
                 }}
                 password={true}
               />
+              <View style={{display: 'flex', flexDirection: 'row', marginTop: 10}}>
+                <Text style={{ color: "grey" }}>Already have an account? </Text>
+                <TouchableOpacity onPress={()=> navigation.navigate('Login')}>
+                  <Text style={{ color: colors.yellow }}>Log in</Text>
+                </TouchableOpacity>
+              </View>
             </View>
             <View
               style={{
