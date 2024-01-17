@@ -1,6 +1,7 @@
-import { View, Text, TextInput, Pressable, StyleSheet } from "react-native";
+import { View, Text, TextInput, Pressable, StyleSheet, ScrollView } from "react-native";
 import React, { useState } from "react";
 import Input from "./Input";
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
 import { width } from "../../constants/scale";
 // import { styles } from "../utils/styles";
 
@@ -10,24 +11,19 @@ import { width } from "../../constants/scale";
 const Modal = ({ setVisible, height }) => {
   const closeModal = () => setVisible(false);
   const [groupName, setGroupName] = useState("");
-  const [top, setTop] = useState(500);
+  // const [top, setTop] = useState(500);
   const handleCreateRoom = () => {
     //👇🏻 sends a message containing the group name to the server
     // socket.emit("createRoom", groupName);
     closeModal();
   };
   return (
-    <View style={[styles.modalContainer, { height: top }]}>
+    // <KeyboardAwareScrollView contentContainerStyle={{flex:1}}>
+    <View style={[styles.modalContainer]}>
       <Text style={styles.modalsubheading}>Enter your Group name</Text>
       <Input
         placeholder="Group name"
-        onfocus={() => {
-        //   handleError(null, "username");
-          setTop(500);
-        }}
-        onblur={() => {
-          setTop(null);
-        }}
+        autoFocus={true}
       />
       <View style={styles.modalbuttonContainer}>
         {/* 👇🏻 The create button triggers the function*/}
@@ -43,6 +39,7 @@ const Modal = ({ setVisible, height }) => {
         </Pressable>
       </View>
     </View>
+
   );
 };
 

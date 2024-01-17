@@ -1,6 +1,7 @@
 // Home Screen
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useEffect, useState } from "react";
+import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
+import { useEffect, useLayoutEffect, useState } from "react";
 import React from "react";
 import {
   View,
@@ -12,6 +13,8 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   Alert,
+  KeyboardAvoidingView,
+  Platform,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import Modal from "../Components/Modal";
@@ -19,15 +22,21 @@ import ChatComponent from "../Components/ChatComponent";
 import colors from "../../constants/colors";
 import { ScrollView } from "react-native";
 import base_url from "../../constants/base_url";
+import { width } from "../../constants/scale";
 
-export default Home = () => {
-  const [user, setUser] = useState({});
+export default Home = ({ navigation }) => {
+  const [user, setUser] = useState(null);
   const [rooms, setRooms] = useState([]);
   const [visible, setVisible] = useState(false);
-  const [top, setTop] = useState(30);
-  useEffect(() => {
+    // const [top, setTop] = useState(30);
+  useLayoutEffect(() => {
     getUser();
+    // console.log(user)
   }, []);
+  useEffect(() => {
+    if (user !== null)
+        getRooms()
+  }, [user]);
   const getUser = async () => {
     let userData = await AsyncStorage.getItem("userData");
     if (!userData)
@@ -36,7 +45,6 @@ export default Home = () => {
       });
     setUser(JSON.parse(userData));
     // console.log(user);
-    getRooms()
   };
   const getRooms = async () => {
     try {
@@ -45,14 +53,17 @@ export default Home = () => {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({id: user.id}),
+        body: JSON.stringify({ id: user.id }),
       });
+    //   console.log("0");
       const data = await response.json();
-      console.log(data)
+    //   console.log(data);
       if (data.error) {
+        // console.log(data);
         Alert.alert("Error", data.error);
       } else {
-        setRooms(data.data)
+        // console.log(data);
+        setRooms(data.data);
       }
     } catch (error) {
       Alert.alert("Error", error.message);
@@ -60,6 +71,7 @@ export default Home = () => {
   };
 
   return (
+    <KeyboardAvoidingView style={{flex: 1}} behavior={'padding'} >
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <SafeAreaView style={styles.chatscreen}>
         <View style={styles.chattopContainer}>
@@ -90,9 +102,14 @@ export default Home = () => {
             </View>
           )}
         </View>
-        {visible ? <Modal setVisible={setVisible} /> : ""}
+        {visible ? (
+            <Modal setVisible={setVisible} />
+        ) : (
+          ""
+        )}
       </SafeAreaView>
     </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
   );
 };
 

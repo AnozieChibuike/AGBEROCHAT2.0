@@ -10,6 +10,7 @@ const ChatComponent = ({ item }) => {
 
     //👇🏻 Retrieves the last message in the array from the item prop
     useLayoutEffect(() => {
+        // console.log(item.messages)
         setMessages(item.messages[item.messages.length - 1]);
     }, []);
 
@@ -35,7 +36,7 @@ const ChatComponent = ({ item }) => {
                     <Text style={styles.cusername}>{item.name.length > 8 ? item.name.slice(0,10) +'...' : item.name}</Text>
 
                     <Text style={styles.cmessage}>
-                        {messages?.text ? messages.body.length > 10 ? messages.body.slice(0,18) + '...' : messages.body : "Tap to start chatting"}
+                        {messages?.body ? messages.body.length > 10 ? messages.body.slice(0,18) + '...' : messages.body : "Tap to start chatting"}
                     </Text>
                 </View>
                 <View>
