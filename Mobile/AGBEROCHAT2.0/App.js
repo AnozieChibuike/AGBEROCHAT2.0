@@ -5,6 +5,7 @@ import { StatusBar } from "react-native";
 import Login from "./src/Screens/AUTH/Login";
 import SignUp from "./src/Screens/AUTH/Signup";
 import Home from "./src/Screens/Home";
+import Chat from "./src/Screens/Chat";
 
 const Stack = createNativeStackNavigator();
 
@@ -31,7 +32,12 @@ export default function App() {
           <Stack.Screen
             name="Home"
             component={Home}
-            options={{ headerShown: false, gestureEnabled:false }}
+            options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="Chat"
+            component={Chat}
+            options={{ headerStyle: { backgroundColor: "black" }, headerTitleStyle:{color:'white'} }}
           />
         </Stack.Navigator>
       </NavigationContainer>
