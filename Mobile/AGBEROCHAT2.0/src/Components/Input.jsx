@@ -35,7 +35,7 @@ export default Input = ({
                 setFocused(false)
             }}
             autoCorrect={false}
-            style={{ color: "white", fontSize: 17, flex:1, height: '100%' }}
+            style={{ color: "white", fontSize: 17,flex: 1 }}
             {...props}
             // onPressIn={()=> console.log(9}
           ></TextInput>
@@ -63,8 +63,7 @@ const styles = StyleSheet.create({
     height: 50,
     borderWidth: 1,
     borderRadius: 7,
-    marginVertical: 5,
-    
+    marginVertical: 5,    
     paddingLeft: 10,
   },
 });

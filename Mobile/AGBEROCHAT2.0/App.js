@@ -37,8 +37,9 @@ export default function App() {
           <Stack.Screen
             name="Chat"
             component={Chat}
-            options={{ headerStyle: { backgroundColor: "black" }, headerTitleStyle:{color:'white'} }}
+            options={{ headerShown: false }}
           />
+          
         </Stack.Navigator>
       </NavigationContainer>
       <StatusBar hidden={true} />

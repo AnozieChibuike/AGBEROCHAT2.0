@@ -28,12 +28,12 @@ export default Home = ({ navigation }) => {
   const [user, setUser] = useState(null);
   const [rooms, setRooms] = useState([]);
   const [visible, setVisible] = useState(false);
-    // const [top, setTop] = useState(30);
   useLayoutEffect(() => {
     getUser();
-    // console.log(user)
+    
   }, []);
-  useEffect(() => {
+  useLayoutEffect(() => {
+    // console.log(user)
     if (user !== null)
         getRooms()
   }, [user]);
@@ -55,9 +55,9 @@ export default Home = ({ navigation }) => {
         },
         body: JSON.stringify({ id: user.id }),
       });
-    //   console.log("0");
+      // console.log("0");
       const data = await response.json();
-    //   console.log(data);
+      // console.log(data);
       if (data.error) {
         // console.log(data);
         Alert.alert("Error", data.error);
