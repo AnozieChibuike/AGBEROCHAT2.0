@@ -385,19 +385,27 @@ def apiRooms():
         if not user:
             return jsonify({"error": "User does not exist"}), 404
         users_rooms = [
-            {
+            {   
                 "id": i.id,
                 "name": i.name,
+                "user_id": id,
                 "messages": [
                     {
-                        "created_at": f"{k.created_at.hour:02d}:{k.created_at.minute:02d}",
-                        "body": k.body,
+                        "createdAt": k.created_at,
+                        "text": k.body,
+                        "_id": k.id,
+                        "user": {
+                            '_id': k.author.id,
+                            'name': k.author.username,
+                            'avatar': f'http://172.20.10.4:5000{k.author.image_url}'
+                        }
                     }
                     for k in i.messages.all()
                 ],
             }
             for i in user.rooms
         ]
+        print(users_rooms)
         # user_rooms_ = list(map(lambda x: for i in user.rooms))
         return {"data": users_rooms, "user": user.to_dict()}
     except:

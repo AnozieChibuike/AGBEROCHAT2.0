@@ -10,23 +10,12 @@ import { Platform } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Chat({navigation, route}) {
-  const [messages, setMessages] = useState([]);
-  const { name, id } = route.params;
+  const [messagesstate, setMessages] = useState([]);
+  const { name, messages, user } = route.params;
+  const [currentUser, setcur]= useState(user)
   useLayoutEffect(()=>{
     navigation.setOptions({ title: name });
-    setMessages([
-      {
-        _id: 1,
-        text: "Hello developer",
-        createdAt: new Date(),
-        user: {
-          _id: 2,
-          name: "React Native",
-          avatar:
-            "https://w7.pngwing.com/pngs/715/372/png-transparent-two-checked-flags-racing-flags-auto-racing-racing-flag-miscellaneous-game-flag-png-free-download-thumbnail.png",
-        },
-      },
-    ]);
+    setMessages(messages);
   },[])
 
   // useEffect(() => {
@@ -71,11 +60,12 @@ export default function Chat({navigation, route}) {
         renderUsernameOnMessage
         renderInputToolbar={Input}
         // isTyping={typing}
-        messages={messages}
-        onSend={(messages) => onSend(messages)}
+        messages={messagesstate}
+        onSend={(messagesstate) => onSend(messagesstate)}
         user={{
-          _id: 1,
+          _id: user,
         }}
+        inverted={false}
       />
     </View>
   );

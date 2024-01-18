@@ -17,8 +17,9 @@ const ChatComponent = ({ item }) => {
     ///👇🏻 Navigates to the Messaging screen
     const handleNavigation = () => {
         navigation.navigate("Chat", {
-            id: item.id,
+            messages: item.messages,
             name: item.name,
+            user: item.user_id
         });
     };
 
@@ -36,7 +37,7 @@ const ChatComponent = ({ item }) => {
                     <Text style={styles.cusername}>{item.name.length > 8 ? item.name.slice(0,10) +'...' : item.name}</Text>
 
                     <Text style={styles.cmessage}>
-                        {messages?.body ? messages.body.length > 10 ? messages.body.slice(0,18) + '...' : messages.body : "Tap to start chatting"}
+                        {messages?.text ? messages.text.length > 10 ? messages.text.slice(0,18) + '...' : messages.text : "Tap to start chatting"}
                     </Text>
                 </View>
                 <View>
