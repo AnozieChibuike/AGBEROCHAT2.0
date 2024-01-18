@@ -1,6 +1,6 @@
 // Home Screen
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import {KeyboardAwareScrollView} from 'react-native-keyboard-aware-scroll-view';
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { useEffect, useLayoutEffect, useState } from "react";
 import React from "react";
 import {
@@ -16,6 +16,7 @@ import {
   KeyboardAvoidingView,
   Platform,
 } from "react-native";
+
 import { Feather } from "@expo/vector-icons";
 import Modal from "../Components/Modal";
 import ChatComponent from "../Components/ChatComponent";
@@ -23,19 +24,22 @@ import colors from "../../constants/colors";
 import { ScrollView } from "react-native";
 import base_url from "../../constants/base_url";
 import { width } from "../../constants/scale";
+import Loader from "../Components/Loader";
 
 export default Home = ({ navigation }) => {
   const [user, setUser] = useState(null);
   const [rooms, setRooms] = useState([]);
   const [visible, setVisible] = useState(false);
+  const [loading, setLoading] = useState(false);
+
   useLayoutEffect(() => {
     getUser();
-    
   }, []);
   useLayoutEffect(() => {
-    // console.log(user)
-    if (user !== null)
-        getRooms()
+    if (user !== null) {
+      getRooms();
+      navigation.addListener("focus", getRooms);
+    }
   }, [user]);
   const getUser = async () => {
     let userData = await AsyncStorage.getItem("userData");
@@ -47,6 +51,7 @@ export default Home = ({ navigation }) => {
     // console.log(user);
   };
   const getRooms = async () => {
+    setLoading(true)
     try {
       const response = await fetch(`${base_url}/api/user/room`, {
         method: "POST",
@@ -55,7 +60,6 @@ export default Home = ({ navigation }) => {
         },
         body: JSON.stringify({ id: user.id }),
       });
-      // console.log("0");
       const data = await response.json();
       // console.log(data);
       if (data.error) {
@@ -68,47 +72,60 @@ export default Home = ({ navigation }) => {
     } catch (error) {
       Alert.alert("Error", error.message);
     }
+    finally{
+      setLoading(false)
+    }
   };
 
   return (
-    <KeyboardAvoidingView style={{flex: 1}} behavior={'padding'} >
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-      <SafeAreaView style={styles.chatscreen}>
-        <View style={styles.chattopContainer}>
-          <View style={styles.chatheader}>
-            <Text style={styles.chatheading}>Chats</Text>
-
-            {/* Displays the Modal component when clicked */}
-            <Pressable onPress={() => setVisible(true)}>
-              <Feather name="edit" size={24} color={colors.faintBlue} />
-            </Pressable>
-          </View>
-        </View>
-        <View style={styles.chatlistContainer}>
-          {rooms.length > 0 ? (
-            <FlatList
-              data={rooms}
-              renderItem={({ item }) => <ChatComponent item={item} />}
-              keyExtractor={(item) => item.id}
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={loading ? null : "padding"}
+    >
+      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+        <SafeAreaView style={styles.chatscreen}>
+          {loading ? (
+            <Loader
+              speed={1}
+              backgroundColor="grey"
+              foregroundColor="white"
             />
           ) : (
-            <View style={styles.chatemptyContainer}>
-              <Text style={[styles.chatemptyText, { color: "white" }]}>
-                No rooms created!
-              </Text>
-              <Text style={{ color: "white" }}>
-                Click the icon above to create a Chat room
-              </Text>
-            </View>
+            <>
+              <View style={styles.chattopContainer}>
+                <View style={styles.chatheader}>
+                  <Text style={styles.chatheading}>Chats</Text>
+
+                  {/* Displays the Modal component when clicked */}
+                  <Pressable onPress={() => setVisible(true)}>
+                    <Feather name="edit" size={24} color={colors.faintBlue} />
+                  </Pressable>
+                </View>
+              </View>
+              <View style={styles.chatlistContainer}>
+                {rooms.length > 0 ? (
+                  <FlatList
+                    data={rooms}
+                    renderItem={({ item }) => <ChatComponent item={item} />}
+                    keyExtractor={(item) => item.id}
+                  />
+                ) : (
+                  <View style={styles.chatemptyContainer}>
+                    <Text style={[styles.chatemptyText, { color: "white" }]}>
+                      No rooms created!
+                    </Text>
+                    <Text style={{ color: "white" }}>
+                      Click the icon above to create a Chat room
+                    </Text>
+                  </View>
+                )}
+              </View>
+
+              {visible ? <Modal setVisible={setVisible} /> : ""}
+            </>
           )}
-        </View>
-        {visible ? (
-            <Modal setVisible={setVisible} />
-        ) : (
-          ""
-        )}
-      </SafeAreaView>
-    </TouchableWithoutFeedback>
+        </SafeAreaView>
+      </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
   );
 };

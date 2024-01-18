@@ -4,14 +4,14 @@ import { Ionicons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 // import { styles } from "../utils/styles";
 
+
 const ChatComponent = ({ item }) => {
     const navigation = useNavigation();
     const [messages, setMessages] = useState({});
-
     //👇🏻 Retrieves the last message in the array from the item prop
     useLayoutEffect(() => {
         // console.log(item.messages)
-        setMessages(item.messages[item.messages.length - 1]);
+        setMessages(item.messages[0]);
     }, []);
 
     ///👇🏻 Navigates to the Messaging screen
@@ -20,10 +20,9 @@ const ChatComponent = ({ item }) => {
             messages: item.messages,
             name: item.name,
             user: item.user_id,
-            room_id: item.id
+            room_id: item.id,
         });
     };
-
     return (
         <TouchableOpacity style={styles.cchat} onPress={handleNavigation}>
             <Ionicons
@@ -38,7 +37,7 @@ const ChatComponent = ({ item }) => {
                     <Text style={styles.cusername}>{item.name.length > 8 ? item.name.slice(0,10) +'...' : item.name}</Text>
 
                     <Text style={styles.cmessage}>
-                        {messages?.text ? messages.text.length > 10 ? messages.text.slice(0,18) + '...' : messages.text : "Tap to start chatting"}
+                        {messages?.text ? `${messages.user.name === item.username ? 'You' : messages.user.name}: ${messages.text.replace(/[\n\r]/g, ' ')}`.length > 16 ? `${messages.user.name === item.username ? 'You' : messages.user.name}: ${messages.text.replace(/[\n\r]/g, ' ')}`.slice(0,18) + '...' : `${messages.user.name === item.username ? 'You' : messages.user.name}: ${messages.text.replace(/[\n\r]/g, ' ')}` : "Tap to start chatting"}
                     </Text>
                 </View>
                 <View>

@@ -118,11 +118,16 @@ def oauth2_callback(provider):
     )
 
 
+@socket.on("typing")
+def handleTyping(data):
+    socket.emit("handleTyping", {"isTyping": data["typing"]},to=data['room'],include_self=False)
+
+
 @socket.on("event")
 def disev(data):
     _room = data["room"]
     join_room(data["room"])
-    if data.get('username'):
+    if data.get("username"):
         try:
             users[data["username"]]["rooms"].append(_room)
         except Exception as e:
@@ -131,7 +136,9 @@ def disev(data):
             user for user, data in users.items() if _room in data.get("rooms", [])
         ]
 
-        socket.emit("len", {"len": len(users_in_room), "users": users_in_room}, to=_room)
+        socket.emit(
+            "len", {"len": len(users_in_room), "users": users_in_room}, to=_room
+        )
 
 
 @socket.on("disconnect")
@@ -145,7 +152,7 @@ def _disconnect():
 @socket.on("custom_message")
 def handleMessage(data):
     # data["message"], data["room"],
-    
+
     api_user = data.get("api_user")
     if api_user:
         u = Users.get(id=api_user)
@@ -192,7 +199,6 @@ def get_admin_info():
 def logout():
     try:
         disconnect(sid=users[current_user.username]["sid"], namespace="/chatbox")
-        # print(users)
         del users[current_user.username]
     except KeyError:
         pass
@@ -401,6 +407,7 @@ def apiRooms():
                 "id": i.id,
                 "name": i.name,
                 "user_id": id,
+                "username": user.username,
                 "messages": [
                     {
                         "createdAt": k.created_at,
@@ -412,13 +419,11 @@ def apiRooms():
                             "avatar": f"http://172.20.10.4:5000{k.author.image_url}",
                         },
                     }
-                    for k in i.messages.all()
+                    for k in list(reversed(i.messages.all()))
                 ],
             }
             for i in user.rooms
         ]
-        print(users_rooms)
-        # user_rooms_ = list(map(lambda x: for i in user.rooms))
         return {"data": users_rooms, "user": user.to_dict()}
     except:
         return jsonify({"error": "Parameters missing"}), 404
