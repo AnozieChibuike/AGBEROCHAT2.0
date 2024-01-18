@@ -7,25 +7,41 @@ import ChatBubble from "../Components/Chat/ChatBubble";
 import { width } from "../../constants/scale";
 import { Image } from "react-native";
 import { Platform } from "react-native";
+import socket from '../../constants/socket'
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Chat({navigation, route}) {
   const [messagesstate, setMessages] = useState([]);
-  const { name, messages, user } = route.params;
+  const { name, messages, user, room_id } = route.params;
   const [currentUser, setcur]= useState(user)
   useLayoutEffect(()=>{
     navigation.setOptions({ title: name });
     setMessages(messages);
+    socket.emit('event', {
+      room: room_id
+    })
   },[])
 
   // useEffect(() => {
     
   // }, []);
+  // setMessages((previousMessages) =>
+  //     GiftedChat.append(previousMessages, messages)
+  //   );
+  socket.on('mes',(data)=>{
+    console.log(data)
+    // setMessages((previousMessages) =>
+    //   GiftedChat.append(previousMessages, data.messages)
+    // );
+  })
   const [typing, seT] = useState(false);
   const onSend = useCallback((messages = []) => {
-    setMessages((previousMessages) =>
-      GiftedChat.append(previousMessages, messages)
-    );
+    // console.log(messages[0] )
+    socket.emit("custom_message", {
+      room: room_id,
+      api_user: user,
+      message: messages[0].text
+    })
   }, []);
 
   return (

@@ -8,6 +8,7 @@ from urllib.parse import urlsplit
 from urllib.parse import urlencode
 import requests
 import secrets
+import json
 
 users = {}
 
@@ -121,44 +122,55 @@ def oauth2_callback(provider):
 def disev(data):
     _room = data["room"]
     join_room(data["room"])
-    try:
-        users[data["username"]]["rooms"].append(_room)
-    except Exception as e:
-        users[data["username"]] = {"rooms": [_room], "sid": request.sid}
-    users_in_room = [
-        user for user, data in users.items() if _room in data.get("rooms", [])
-    ]
+    if data.get('username'):
+        try:
+            users[data["username"]]["rooms"].append(_room)
+        except Exception as e:
+            users[data["username"]] = {"rooms": [_room], "sid": request.sid}
+        users_in_room = [
+            user for user, data in users.items() if _room in data.get("rooms", [])
+        ]
 
-    socket.emit("len", {"len": len(users_in_room), "users": users_in_room}, to=_room)
+        socket.emit("len", {"len": len(users_in_room), "users": users_in_room}, to=_room)
 
 
 @socket.on("disconnect")
 def _disconnect():
-    del users[current_user.username]
+    try:
+        del users[current_user.username]
+    except:
+        pass
 
 
 @socket.on("custom_message")
 def handleMessage(data):
-    u = current_user
+    # data["message"], data["room"],
+    
+    api_user = data.get("api_user")
+    if api_user:
+        u = Users.get(id=api_user)
+    else:
+        u = current_user
     room = Rooms.get(id=data["room"])
     p = Msg(body=data["message"], author=u, room=room)
     p.save()
     socket.emit(
         "mes",
-        {"user": u.username, "imageUrl": u.image_url, "msg": data["message"]},
-        to=data["room"],
-    )
-
-
-@socket.on("api_message")
-def handleMessage(data):
-    u = data["user_id"]
-    room = Rooms.get(id=data["room_id"])
-    p = Msg(body=data["message"], author=u, room=room)
-    p.save()
-    socket.emit(
-        "mes",
-        {"user": u.username, "imageUrl": u.image_url, "msg": data["message"]},
+        {
+            "user": u.username,
+            "imageUrl": u.image_url,
+            "msg": data["message"],
+            "api_message": {
+                "createdAt": p.created_at.isoformat(),
+                "text": p.body,
+                "_id": p.id,
+                "user": {
+                    "_id": p.author.id,
+                    "name": p.author.username,
+                    "avatar": f"http://172.20.10.4:5000{p.author.image_url}",
+                },
+            },
+        },
         to=data["room"],
     )
 
@@ -232,7 +244,7 @@ def login():
         login_user(user, remember=remember)
         next_page = request.args.get("next")
         message = f"{user.username} joined the chat."
-        socket.emit("mes", {"user": "info", "msg": message})
+        # socket.emit("mes", {"user": "info", "msg": message})
         info = get_admin_info()
         p = Msg(body=message, author=info)
         db.session.add(p)
@@ -385,7 +397,7 @@ def apiRooms():
         if not user:
             return jsonify({"error": "User does not exist"}), 404
         users_rooms = [
-            {   
+            {
                 "id": i.id,
                 "name": i.name,
                 "user_id": id,
@@ -395,10 +407,10 @@ def apiRooms():
                         "text": k.body,
                         "_id": k.id,
                         "user": {
-                            '_id': k.author.id,
-                            'name': k.author.username,
-                            'avatar': f'http://172.20.10.4:5000{k.author.image_url}'
-                        }
+                            "_id": k.author.id,
+                            "name": k.author.username,
+                            "avatar": f"http://172.20.10.4:5000{k.author.image_url}",
+                        },
                     }
                     for k in i.messages.all()
                 ],

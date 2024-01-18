@@ -19,7 +19,8 @@ const ChatComponent = ({ item }) => {
         navigation.navigate("Chat", {
             messages: item.messages,
             name: item.name,
-            user: item.user_id
+            user: item.user_id,
+            room_id: item.id
         });
     };
 
