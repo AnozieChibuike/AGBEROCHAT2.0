@@ -25,6 +25,7 @@ import { ScrollView } from "react-native";
 import base_url from "../../constants/base_url";
 import { width } from "../../constants/scale";
 import Loader from "../Components/Loader";
+import Button from "../Components/Button";
 
 export default Home = ({ navigation }) => {
   const [user, setUser] = useState(null);
@@ -76,6 +77,11 @@ export default Home = ({ navigation }) => {
       setLoading(false)
     }
   };
+   
+const logout = () => {
+  AsyncStorage.removeItem('userData')
+  navigation.navigate('Landing')
+}
 
   return (
     <KeyboardAvoidingView
@@ -120,7 +126,7 @@ export default Home = ({ navigation }) => {
                   </View>
                 )}
               </View>
-
+              <Button text={'logout'} color={'white'} bg={'red'} onPress={logout}  />
               {visible ? <Modal setVisible={setVisible} /> : ""}
             </>
           )}

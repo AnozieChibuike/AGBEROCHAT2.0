@@ -98,7 +98,10 @@ export default function Chat({ navigation, route }) {
             onType(false);
           }
         }}
+        // minComposerHeight={50}
+        // minInputToolbarHeight={50}
         scrollToBottom
+        // renderFooter={}
         renderUsernameOnMessage
         renderInputToolbar={Input}
         isTyping={typing}

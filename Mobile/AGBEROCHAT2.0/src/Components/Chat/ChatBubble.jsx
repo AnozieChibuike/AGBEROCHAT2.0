@@ -1,4 +1,4 @@
-import { Bubble, Time } from "react-native-gifted-chat";
+import { Bubble,TypingIndicator, Time } from "react-native-gifted-chat";
 import colors from "../../../constants/colors";
 
 export default ChatBubble = (props) => {
@@ -37,3 +37,7 @@ export default ChatBubble = (props) => {
     />
   );
 };
+
+export const footer = () => {
+  <TypingIndicator />
+}
