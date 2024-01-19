@@ -6,6 +6,7 @@ import Logo from "../../Components/Logo";
 import { useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
   Keyboard,
   Text,
   TouchableOpacity,

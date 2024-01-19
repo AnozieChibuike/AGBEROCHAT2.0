@@ -6,7 +6,7 @@ import React, {
   useEffect,
   useLayoutEffect,
 } from "react";
-import { Text, Touchable, TouchableOpacity, View } from "react-native";
+import { Alert, Text, Touchable, TouchableOpacity, View } from "react-native";
 import { GiftedChat, InputToolbar } from "react-native-gifted-chat";
 import Input from "../Components/Chat/Input";
 import ChatBubble from "../Components/Chat/ChatBubble";
@@ -15,18 +15,49 @@ import { Image } from "react-native";
 import { Platform } from "react-native";
 import socket from "../../constants/socket";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Loader from "../Components/Loader";
 
 export default function Chat({ navigation, route }) {
   const [messagesstate, setMessages] = useState([]);
   const { name, messages, user, room_id } = route.params;
   const [currentUser, setcur] = useState(user);
+  const [loading, setLoading] = useState(false);
   useLayoutEffect(() => {
     navigation.setOptions({ title: name });
-    setMessages(messages);
+    if (user) {
+      getRoomMessages();
+      navigation.addListener("focus", getRoomMessages);
+    }
     socket.emit("event", {
       room: room_id,
     });
   }, []);
+
+  const getRoomMessages = async () => {
+    setLoading(true);
+    try {
+      const response = await fetch(`${base_url}/api/user/room`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id: user, room_id: room_id }),
+      });
+      const data = await response.json();
+      // console.log(data);
+      if (data.error) {
+        // console.log(data);
+        Alert.alert("Error", data.error);
+      } else {
+        // console.log(data);
+        setMessages(data.data);
+      }
+    } catch (error) {
+      Alert.alert("Error", error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     socket.on("mes", handleSocketEvent);
@@ -89,29 +120,32 @@ export default function Chat({ navigation, route }) {
         </Text>
         <Image />
       </View>
-      <GiftedChat
-        renderBubble={ChatBubble}
-        onInputTextChanged={(text) => {
-          if (text) {
-            onType(true);
-          } else {
-            onType(false);
-          }
-        }}
-        // minComposerHeight={50}
-        // minInputToolbarHeight={50}
-        scrollToBottom
-        // renderFooter={}
-        renderUsernameOnMessage
-        renderInputToolbar={Input}
-        isTyping={typing}
-        messages={messagesstate}
-        onSend={(messagesstate) => onSend(messagesstate)}
-        user={{
-          _id: user,
-        }}
-
-      />
+      {loading ? (
+        <Loader speed={1} backgroundColor="grey" foregroundColor="white" />
+      ) : (
+        <GiftedChat
+          renderBubble={ChatBubble}
+          onInputTextChanged={(text) => {
+            if (text) {
+              onType(true);
+            } else {
+              onType(false);
+            }
+          }}
+          // minComposerHeight={50}
+          // minInputToolbarHeight={50}
+          scrollToBottom
+          // renderFooter={}
+          renderUsernameOnMessage
+          renderInputToolbar={Input}
+          isTyping={typing}
+          messages={messagesstate}
+          onSend={(messagesstate) => onSend(messagesstate)}
+          user={{
+            _id: user,
+          }}
+        />
+      )}
     </View>
   );
 }

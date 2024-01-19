@@ -394,14 +394,32 @@ def apiSignUp():
         return jsonify({"error": "Parameters missing"}), 404
 
 
+
 @app.post("/api/user/room")
 def apiRooms():
     data = request.json
     try:
         id = data["id"]
         user = Users.get(id=id)
+        room_id = data.get('room_id')
         if not user:
             return jsonify({"error": "User does not exist"}), 404
+        if room_id:
+            room = Rooms.get(id=room_id)
+            room_messages =  [
+                    {
+                        "createdAt": k.created_at.isoformat(),
+                        "text": k.body,
+                        "_id": k.id,
+                        "user": {
+                            "_id": k.author.id,
+                            "name": k.author.username,
+                            "avatar": f"{k.author.image_url if k.author.image_url.startswith('http') else 'https://flask-app-404911.uc.r.appspot.com'+k.author.image_url }",
+                        },
+                    }
+                    for k in list(reversed(room.messages.all()))
+                ]
+            return {"data": room_messages, "user": user.to_dict()}        
         users_rooms = [
             {
                 "id": i.id,
@@ -410,13 +428,13 @@ def apiRooms():
                 "username": user.username,
                 "messages": [
                     {
-                        "createdAt": k.created_at,
+                        "createdAt": k.created_at.isoformat(),
                         "text": k.body,
                         "_id": k.id,
                         "user": {
                             "_id": k.author.id,
                             "name": k.author.username,
-                            "avatar": f"http://172.20.10.4:5000{k.author.image_url}",
+                            "avatar": f"{k.author.image_url if k.author.image_url.startswith('http') else 'https://flask-app-404911.uc.r.appspot.com'+k.author.image_url }",
                         },
                     }
                     for k in list(reversed(i.messages.all()))
@@ -425,8 +443,10 @@ def apiRooms():
             for i in user.rooms
         ]
         return {"data": users_rooms, "user": user.to_dict()}
-    except:
+    except Exception as e:
+        print(e)
         return jsonify({"error": "Parameters missing"}), 404
+
 
 
 @app.post("/api/room/members")
