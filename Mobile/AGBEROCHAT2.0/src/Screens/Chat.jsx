@@ -1,5 +1,9 @@
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 
+// import PushNotification from 'react-native-push-notification';
+
+
+
 import React, {
   useState,
   useCallback,
@@ -72,6 +76,10 @@ export default function Chat({ navigation, route }) {
     setMessages((previousMessages) =>
       GiftedChat.append(previousMessages, data.api_message)
     );
+    // Schedule a local notification
+// PushNotification.localNotification({
+//   message: data.api_message,
+// });
   }, []);
 
   const handleTyping = useCallback((data) => {

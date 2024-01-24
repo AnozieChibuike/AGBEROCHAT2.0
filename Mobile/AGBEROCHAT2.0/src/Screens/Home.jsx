@@ -32,7 +32,8 @@ export default Home = ({ navigation }) => {
   const [rooms, setRooms] = useState([]);
   const [visible, setVisible] = useState(false);
   const [loading, setLoading] = useState(false);
-
+  const [room_name, setRoomName] = useState('')
+  
   useLayoutEffect(() => {
     getUser();
   }, []);
@@ -42,6 +43,39 @@ export default Home = ({ navigation }) => {
       navigation.addListener("focus", getRooms);
     }
   }, [user]);
+
+  const createRoom = async () => {
+
+    if (room_name.length < 1) {
+      Alert.alert('Error', 'Room name can not be blank')
+      return
+    }
+  
+    setLoading(true);
+    try {
+      const response = await fetch(`${base_url}/api/create_room`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ user_id: user.id, name: room_name }),
+      });
+      const data = await response.json();
+      // console.log(data);
+      if (data.error) {
+        // console.log(data);
+        Alert.alert("Error", data.error);
+      } else {
+        getRooms()
+      }
+    } catch (error) {
+      Alert.alert("Error", error.message);
+    } finally {
+      setRoomName('')
+      setLoading(false);
+    }
+  };
+
   const getUser = async () => {
     let userData = await AsyncStorage.getItem("userData");
     if (!userData)
@@ -51,6 +85,7 @@ export default Home = ({ navigation }) => {
     setUser(JSON.parse(userData));
     // console.log(user);
   };
+
   const getRooms = async () => {
     setLoading(true)
     try {
@@ -67,7 +102,7 @@ export default Home = ({ navigation }) => {
         // console.log(data);
         Alert.alert("Error", data.error);
       } else {
-        // console.log(data);
+        // console.log(data.data);
         setRooms(data.data);
       }
     } catch (error) {
@@ -125,9 +160,9 @@ const logout = () => {
                     </Text>
                   </View>
                 )}
-              </View>
               <Button text={'logout'} color={'white'} bg={'red'} onPress={logout}  />
-              {visible ? <Modal setVisible={setVisible} /> : ""}
+              </View>
+              {visible ? <Modal createRoom={createRoom} setVisible={setVisible} onChangeText={(text) => setRoomName(text)} /> : ""}
             </>
           )}
         </SafeAreaView>
@@ -165,6 +200,7 @@ const styles = StyleSheet.create({
   },
   chatlistContainer: {
     paddingHorizontal: 10,
+    marginBottom: 150
   },
   chatemptyContainer: {
     width: "100%",

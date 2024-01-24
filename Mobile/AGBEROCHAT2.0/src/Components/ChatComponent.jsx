@@ -8,10 +8,15 @@ import { useNavigation } from "@react-navigation/native";
 const ChatComponent = ({ item }) => {
     const navigation = useNavigation();
     const [messages, setMessages] = useState({});
+    const [time, setTime] = useState('')
     //👇🏻 Retrieves the last message in the array from the item prop
     useLayoutEffect(() => {
         // console.log(item.messages)
-        setMessages(item.messages[0]);
+        setMessages(item.messages[0] || null);
+        if (item.messages[0]) {
+            const date = new Date(item.messages[0].createdAt)
+            setTime(`${date.getHours()}:${Number(date.getMinutes()) <10 ? '0' + date.getMinutes() : date.getMinutes() }`)
+        }
     }, []);
 
     ///👇🏻 Navigates to the Messaging screen
@@ -42,7 +47,7 @@ const ChatComponent = ({ item }) => {
                 </View>
                 <View>
                     <Text style={styles.ctime}>
-                        {messages?.created_at ? messages.created_at : "now"}
+                        {time ? time : "now"}
                     </Text>
                 </View>
             </View>
