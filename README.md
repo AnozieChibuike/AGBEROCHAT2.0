@@ -1,7 +1,7 @@
 
 # **AGBEROCHAT 2.0**
 
- It is a chat interface built on socket.io. The Server script was written with Flask to handle the end to end communication between the client and the server.
+ It is a chat interface built with socket.io. The Server script was written with Flask to handle the end to end communication between the client and the server.
 
 
 # Contributing to **AGBEROCHAT 2.0**
