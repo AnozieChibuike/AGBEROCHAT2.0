@@ -15,6 +15,9 @@ import {
   Alert,
   KeyboardAvoidingView,
   Platform,
+  Image,
+  TouchableOpacity,
+  Share,
 } from "react-native";
 
 import { Feather } from "@expo/vector-icons";
@@ -31,9 +34,9 @@ export default Home = ({ navigation }) => {
   const [user, setUser] = useState(null);
   const [rooms, setRooms] = useState([]);
   const [visible, setVisible] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [room_name, setRoomName] = useState('')
-  
+  const [loading, setLoading] = useState(true);
+  const [room_name, setRoomName] = useState("");
+
   useLayoutEffect(() => {
     getUser();
   }, []);
@@ -45,12 +48,11 @@ export default Home = ({ navigation }) => {
   }, [user]);
 
   const createRoom = async () => {
-
     if (room_name.length < 1) {
-      Alert.alert('Error', 'Room name can not be blank')
-      return
+      Alert.alert("Error", "Room name can not be blank");
+      return;
     }
-  
+
     setLoading(true);
     try {
       const response = await fetch(`${base_url}/api/create_room`, {
@@ -66,18 +68,19 @@ export default Home = ({ navigation }) => {
         // console.log(data);
         Alert.alert("Error", data.error);
       } else {
-        getRooms()
+        getRooms();
       }
     } catch (error) {
       Alert.alert("Error", error.message);
     } finally {
-      setRoomName('')
+      setRoomName("");
       setLoading(false);
     }
   };
 
   const getUser = async () => {
     let userData = await AsyncStorage.getItem("userData");
+    // console.log(user['image_url'])
     if (!userData)
       navigation.navigate("Login", {
         message: "Session expired, Log in",
@@ -87,7 +90,7 @@ export default Home = ({ navigation }) => {
   };
 
   const getRooms = async () => {
-    setLoading(true)
+    setLoading(true);
     try {
       const response = await fetch(`${base_url}/api/user/room`, {
         method: "POST",
@@ -107,16 +110,15 @@ export default Home = ({ navigation }) => {
       }
     } catch (error) {
       Alert.alert("Error", error.message);
-    }
-    finally{
-      setLoading(false)
+    } finally {
+      setLoading(false);
     }
   };
-   
-const logout = () => {
-  AsyncStorage.removeItem('userData')
-  navigation.navigate('Landing')
-}
+
+  const logout = () => {
+    AsyncStorage.removeItem("userData");
+    navigation.navigate("Landing");
+  };
 
   return (
     <KeyboardAvoidingView
@@ -126,15 +128,24 @@ const logout = () => {
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <SafeAreaView style={styles.chatscreen}>
           {loading ? (
-            <Loader
-              speed={1}
-              backgroundColor="grey"
-              foregroundColor="white"
-            />
+            <Loader speed={1} backgroundColor="grey" foregroundColor="white" />
           ) : (
             <>
               <View style={styles.chattopContainer}>
                 <View style={styles.chatheader}>
+                  <View style={{ width: 50, height: 50 }}>
+                    <TouchableOpacity>
+                      <Image
+                        source={{ uri: `${base_url}${user["image_url"]}` }}
+                        style={{
+                          height: "100%",
+                          width: "100%",
+                          borderRadius: 100,
+                        }}
+                      />
+                    </TouchableOpacity>
+                  </View>
+
                   <Text style={styles.chatheading}>Chats</Text>
 
                   {/* Displays the Modal component when clicked */}
@@ -160,9 +171,22 @@ const logout = () => {
                     </Text>
                   </View>
                 )}
-              <Button text={'logout'} color={'white'} bg={'red'} onPress={logout}  />
+                <Button
+                  text={"logout"}
+                  color={"white"}
+                  bg={"red"}
+                  onPress={logout}
+                />
               </View>
-              {visible ? <Modal createRoom={createRoom} setVisible={setVisible} onChangeText={(text) => setRoomName(text)} /> : ""}
+              {visible ? (
+                <Modal
+                  createRoom={createRoom}
+                  setVisible={setVisible}
+                  onChangeText={(text) => setRoomName(text)}
+                />
+              ) : (
+                ""
+              )}
             </>
           )}
         </SafeAreaView>
@@ -200,7 +224,7 @@ const styles = StyleSheet.create({
   },
   chatlistContainer: {
     paddingHorizontal: 10,
-    marginBottom: 150
+    marginBottom: 150,
   },
   chatemptyContainer: {
     width: "100%",
