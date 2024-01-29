@@ -1,5 +1,7 @@
 import os
+from dotenv import load_dotenv
 
+load_dotenv()
 
 class Config(object):
     SECRET_KEY = "shjhfgdskhjd"
@@ -7,8 +9,8 @@ class Config(object):
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     OAUTH2_PROVIDERS = {
         "google": {
-            "client_id": "86746551156-h24fjrqt31t7cfmj7ofv6e10nafkhcr4.apps.googleusercontent.com",
-            "client_secret": "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",
+            "client_id": os.getenv('CLIENT_ID'),
+            "client_secret": os.getenv('CLIENT_SECRET'),
             "authorize_url": "https://accounts.google.com/o/oauth2/auth",
             "token_url": "https://accounts.google.com/o/oauth2/token",
             "userinfo": {

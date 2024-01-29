@@ -10,11 +10,12 @@ import colors from "../../constants/colors";
 import { width } from "../../constants/scale";
 import { Text } from "react-native";
 import Button from "../Components/Button";
+import base_url from "../../constants/base_url";
 
 export default Profile = ({ navigation, route }) => {
   const { user } = route.params;
   const [modal, setModal] = useState(false);
-  const [uri, setUri] = useState(`${base_url}${user["image_url"]}`);
+  const [uri, setUri] = useState(user["image_url"].startsWith('/') ? `${base_url}${user["image_url"]}`:user["image_url"]);
   const uploadImage = async (mode) => {
     try {
       let result = null;
@@ -26,7 +27,7 @@ export default Profile = ({ navigation, route }) => {
           aspect: [1, 1],
           quality: 1,
         });
-        // console.log(result)
+        console.log(result)
         // if (!result.canceled) setUri(result.assets[0].uri);
       } else {
         await ImagePicker.requestCameraPermissionsAsync();
@@ -37,8 +38,9 @@ export default Profile = ({ navigation, route }) => {
           quality: 1,
         });
       }
-
-      if (!result.canceled) setUri(result.assets[0].uri);
+      console.log(result)
+      if (!result.canceled) sendToBackend(result.assets[0].uri);
+      // if (!result.canceled) console.log(result);
     } catch (error) {
       console.log(error);
     }
@@ -46,6 +48,32 @@ export default Profile = ({ navigation, route }) => {
         setModal(false)
     }
   };
+
+  const sendToBackend = async (selectedImage) =>{
+    const formData = new FormData();
+    const parts = selectedImage.split('.');
+
+// The last part of the array will be the file extension
+  const fileExtension = parts[parts.length - 1];
+  console.log(user.id)
+    formData.append('pfp', {
+      uri: selectedImage,
+      type: 'image/png',
+      name: user.id+'.'+fileExtension,
+    });
+    try {
+      const response = await fetch(base_url+'/upload-img', {
+        method: 'POST',
+        body: formData,
+      });
+      const data = await response.json()
+      setUri(data.data)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+
   return (
     <>
       <SafeAreaView

@@ -2,3 +2,5 @@
 *.db
 *instance/
 *migrations/
+*.env
+*credentials.json

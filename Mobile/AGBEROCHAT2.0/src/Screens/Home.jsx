@@ -39,11 +39,11 @@ export default Home = ({ navigation }) => {
 
   useLayoutEffect(() => {
     getUser();
+    navigation.addListener("focus", getUser);
   }, []);
   useLayoutEffect(() => {
     if (user !== null) {
       getRooms();
-      navigation.addListener("focus", getRooms);
     }
   }, [user]);
 
@@ -79,16 +79,35 @@ export default Home = ({ navigation }) => {
   };
 
   const getUser = async () => {
+    setLoading(true)
     let userData = await AsyncStorage.getItem("userData");
     // console.log(user['image_url'])
     if (!userData)
       navigation.navigate("Login", {
         message: "Session expired, Log in",
       });
-    setUser(JSON.parse(userData));
-    // console.log(user);
+    try {
+      const response = await fetch(`${base_url}/api/users`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id: JSON.parse(userData).id }),
+      });
+      const data = await response.json();
+      // console.log(data);
+      if (data.error) {
+        // console.log(data);
+        Alert.alert("Error", data.error);
+      } else {
+        setUser(data.data[0]);
+      }
+    } catch (error) {
+      Alert.alert("Error", error.message);
+    } finally {
+      setLoading(false);
+    }
   };
-
   const getRooms = async () => {
     setLoading(true);
     try {
@@ -134,9 +153,11 @@ export default Home = ({ navigation }) => {
               <View style={styles.chattopContainer}>
                 <View style={styles.chatheader}>
                   <View style={{ width: 50, height: 50 }}>
-                    <TouchableOpacity onPress={()=>navigation.navigate('Profile', {user})}>
+                    <TouchableOpacity
+                      onPress={() => navigation.navigate("Profile", { user })}
+                    >
                       <Image
-                        source={{ uri: `${base_url}${user["image_url"]}` }}
+                        source={{ uri: user["image_url"].startsWith('/') ? `${base_url}${user["image_url"]}`:user["image_url"] }}
                         style={{
                           height: "100%",
                           width: "100%",
