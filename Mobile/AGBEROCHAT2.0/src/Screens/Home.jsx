@@ -134,7 +134,7 @@ export default Home = ({ navigation }) => {
               <View style={styles.chattopContainer}>
                 <View style={styles.chatheader}>
                   <View style={{ width: 50, height: 50 }}>
-                    <TouchableOpacity>
+                    <TouchableOpacity onPress={()=>navigation.navigate('Profile', {user})}>
                       <Image
                         source={{ uri: `${base_url}${user["image_url"]}` }}
                         style={{

@@ -6,6 +6,7 @@ import Login from "./src/Screens/AUTH/Login";
 import SignUp from "./src/Screens/AUTH/Signup";
 import Home from "./src/Screens/Home";
 import Chat from "./src/Screens/Chat";
+import Profile from "./src/Screens/Profile";
 
 const Stack = createNativeStackNavigator();
 
@@ -38,6 +39,11 @@ export default function App() {
             name="Chat"
             component={Chat}
             options={{ headerShown: false }}
+          />
+          <Stack.Screen
+            name="Profile"
+            component={Profile}
+            options={{headerShown: false}}
           />
           
         </Stack.Navigator>
