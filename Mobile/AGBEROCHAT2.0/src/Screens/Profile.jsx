@@ -11,6 +11,7 @@ import { width } from "../../constants/scale";
 import { Text } from "react-native";
 import Button from "../Components/Button";
 import base_url from "../../constants/base_url";
+import { Alert } from "react-native";
 
 export default Profile = ({ navigation, route }) => {
   const { user } = route.params;
@@ -27,8 +28,7 @@ export default Profile = ({ navigation, route }) => {
           aspect: [1, 1],
           quality: 1,
         });
-        console.log(result)
-        // if (!result.canceled) setUri(result.assets[0].uri);
+        
       } else {
         await ImagePicker.requestCameraPermissionsAsync();
         result = await ImagePicker.launchCameraAsync({
@@ -38,11 +38,10 @@ export default Profile = ({ navigation, route }) => {
           quality: 1,
         });
       }
-      console.log(result)
+      
       if (!result.canceled) sendToBackend(result.assets[0].uri);
-      // if (!result.canceled) console.log(result);
     } catch (error) {
-      console.log(error);
+      Alert(error)
     }
     finally {
         setModal(false)
@@ -55,7 +54,6 @@ export default Profile = ({ navigation, route }) => {
 
 // The last part of the array will be the file extension
   const fileExtension = parts[parts.length - 1];
-  console.log(user.id)
     formData.append('pfp', {
       uri: selectedImage,
       type: 'image/png',
@@ -69,7 +67,7 @@ export default Profile = ({ navigation, route }) => {
       const data = await response.json()
       setUri(data.data)
     } catch (error) {
-      console.log(error)
+      
     }
   }
 

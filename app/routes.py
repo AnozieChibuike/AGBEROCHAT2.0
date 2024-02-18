@@ -1,4 +1,9 @@
-from app import app, db, socket
+import os
+from dotenv import load_dotenv
+from google.cloud import storage
+from google.oauth2 import service_account
+import uuid
+from app import app, db, socket, cache
 from flask_socketio import disconnect, join_room, leave_room, rooms
 from flask import abort, request, flash, session, redirect, url_for, jsonify
 from flask import render_template as rd
@@ -10,7 +15,55 @@ import requests
 import secrets
 import json
 
+load_dotenv()
+
+base_url=os.getenv('base_url')
+
 users = {}
+
+def upload_blob( destination_blob_name,file,bucket_name='agberochat'):
+    """Uploads a file to the Google Cloud Storage bucket."""
+    credentials = service_account.Credentials.from_service_account_file(os.getcwd()+"/"+'credentials.json',scopes=["https://www.googleapis.com/auth/cloud-platform"],)
+    # Instantiates a client
+    storage_client = storage.Client(project='flask-app-404911', credentials=credentials)
+
+    # Get the bucket
+    bucket = storage_client.get_bucket(bucket_name)
+
+    # Extract file name without extension from source file path
+    id, extension = os.path.splitext(destination_blob_name)
+
+    # Rename the destination blob (object) name
+    destination_blob_name = f"{id}/{uuid.uuid4()}.{extension}"
+    
+    try: 
+        blobs = bucket.list_blobs(prefix=id)
+
+    # Delete each blob
+        for blob in blobs:
+            blob.delete()
+            print(f'Deleted {blob.name}')
+    except:
+        pass
+    # Upload the file
+    blob = bucket.blob(destination_blob_name)
+    blob.upload_from_file(file)
+    blob.make_public()
+    return blob.public_url
+
+    # print(f"File {source_file_path} uploaded to {destination_blob_name} in {bucket_name}.")
+
+
+
+@app.post('/upload-img')
+def uploadImg():
+    file = request.files.get('pfp')
+    user = Users.get(id=file.filename.split('.')[0])
+    if not file:
+        return jsonify({'error': 'Image required'}), 400
+    user.image_url = upload_blob(file.filename,file)
+    user.save()
+    return jsonify({'data': user.image_url})
 
 
 @app.route("/authorize/<provider>")
@@ -130,7 +183,7 @@ def disev(data):
     if data.get("username"):
         try:
             users[data["username"]]["rooms"].append(_room)
-        except Exception as e:
+        except:
             users[data["username"]] = {"rooms": [_room], "sid": request.sid}
         users_in_room = [
             user for user, data in users.items() if _room in data.get("rooms", [])
@@ -174,7 +227,7 @@ def handleMessage(data):
                 "user": {
                     "_id": p.author.id,
                     "name": p.author.username,
-                    "avatar": f"http://172.20.10.4:5000{p.author.image_url}",
+                    "avatar": p.author.image_url,
                 },
             },
         },
@@ -287,10 +340,11 @@ def chatroom():
     is_admin = Room.users[0] == current_user
     return rd(
         "chat-demo.html",
+        base_url=base_url,
         room_id=Room.id,
         room_name=Room.name,
         users=Room.users,
-        messages=Room.messages.all(),
+        messages=Room.messages.order_by(Msg.created_at.asc()).all(),
         user_rooms=user_rooms,
         is_admin=is_admin,
     )
@@ -341,6 +395,7 @@ def apiUsers():
     users = [i.to_dict() for i in Users.all()]
     if id:
         value = list(filter(lambda x: x["id"] == id, users))
+    
         return jsonify({"data": value})
     if email:
         value = list(filter(lambda x: x["email"] == email, users))
@@ -349,6 +404,7 @@ def apiUsers():
 
 
 @app.post("/api/login")
+@cache.cached(timeout=3600)
 def apiLogin():
     data = request.json
     try:
@@ -394,7 +450,6 @@ def apiSignUp():
         return jsonify({"error": "Parameters missing"}), 404
 
 
-
 @app.post("/api/user/room")
 def apiRooms():
     data = request.json
@@ -414,10 +469,10 @@ def apiRooms():
                         "user": {
                             "_id": k.author.id,
                             "name": k.author.username,
-                            "avatar": f"{k.author.image_url if k.author.image_url.startswith('http') else 'https://flask-app-404911.uc.r.appspot.com'+k.author.image_url }",
+                            "avatar": k.author.image_url,
                         },
                     }
-                    for k in list(reversed(room.messages.all()))
+                    for k in room.messages.order_by(Msg.created_at.desc()).all()
                 ]
             return {"data": room_messages, "user": user.to_dict()}        
         users_rooms = [
@@ -434,10 +489,10 @@ def apiRooms():
                         "user": {
                             "_id": k.author.id,
                             "name": k.author.username,
-                            "avatar": f"{k.author.image_url if k.author.image_url.startswith('http') else 'https://flask-app-404911.uc.r.appspot.com'+k.author.image_url }",
+                            "avatar": k.author.image_url,
                         },
                     }
-                    for k in list(reversed(i.messages.all()))
+                    for k in i.messages.order_by(Msg.created_at.desc()).all()
                 ],
             }
             for i in user.rooms
@@ -446,7 +501,6 @@ def apiRooms():
     except Exception as e:
         print(e)
         return jsonify({"error": "Parameters missing"}), 404
-
 
 
 @app.post("/api/room/members")

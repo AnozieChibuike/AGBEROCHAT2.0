@@ -48,12 +48,11 @@ export default function Chat({ navigation, route }) {
         body: JSON.stringify({ id: user, room_id: room_id }),
       });
       const data = await response.json();
-      // console.log(data);
+
       if (data.error) {
-        // console.log(data);
+       
         Alert.alert("Error", data.error);
       } else {
-        // console.log(data);
         setMessages(data.data);
       }
     } catch (error) {
@@ -93,7 +92,6 @@ export default function Chat({ navigation, route }) {
     });
   }, []);
   const onSend = useCallback((messages = []) => {
-    // console.log(messages[0] )
     socket.emit("custom_message", {
       room: room_id,
       api_user: user,

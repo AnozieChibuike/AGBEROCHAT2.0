@@ -308,9 +308,9 @@
   </div>
   <script>
     const socket = io.connect(
-      "http://" + document.domain + ":" + location.port
+      "{{base_url}}"
     );
-    document.getElementById('invite_link').innerText = "http://" + document.domain + ":" + location.port + "{{ url_for('join') }}?room={{ room_id }}"
+    document.getElementById('invite_link').innerText = "{{base_url}}" + "{{ url_for('join') }}?room={{ room_id }}"
     const Active = document.querySelector(".active");
     const container = document.querySelector(".chat-container");
 
