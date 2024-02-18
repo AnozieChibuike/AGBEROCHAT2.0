@@ -6,10 +6,9 @@ from flask_login import LoginManager
 from flask_socketio import SocketIO
 from werkzeug.middleware.proxy_fix import ProxyFix
 from flask_cors import CORS
-from flask_caching import Cache
 
 app = Flask(__name__)
-cache = Cache(app, config={'CACHE_TYPE': 'SimpleCache'})
+
 CORS(app)
 app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1)
 app.config.from_object(Config)
