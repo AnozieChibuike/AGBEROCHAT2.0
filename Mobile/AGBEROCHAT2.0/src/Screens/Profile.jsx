@@ -16,7 +16,7 @@ import { Alert } from "react-native";
 export default Profile = ({ navigation, route }) => {
   const { user } = route.params;
   const [modal, setModal] = useState(false);
-  const [uri, setUri] = useState(user["image_url"].startsWith('/') ? `${base_url}${user["image_url"]}`:user["image_url"]);
+  const [uri, setUri] = useState(user["image_url"]);
   const uploadImage = async (mode) => {
     try {
       let result = null;
@@ -64,10 +64,11 @@ export default Profile = ({ navigation, route }) => {
         method: 'POST',
         body: formData,
       });
+      console.log(response)
       const data = await response.json()
       setUri(data.data)
     } catch (error) {
-      
+      console.log(error)
     }
   }
 

@@ -157,7 +157,7 @@ export default Home = ({ navigation }) => {
                       onPress={() => navigation.navigate("Profile", { user })}
                     >
                       <Image
-                        source={{ uri: user["image_url"].startsWith('/') ? `${base_url}${user["image_url"]}`:user["image_url"] }}
+                        source={{ uri: user["image_url"] }}
                         style={{
                           height: "100%",
                           width: "100%",
