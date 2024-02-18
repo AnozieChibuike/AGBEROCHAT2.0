@@ -3,7 +3,7 @@ from dotenv import load_dotenv
 from google.cloud import storage
 from google.oauth2 import service_account
 import uuid
-from app import app, db, socket, cache
+from app import app, db, socket
 from flask_socketio import disconnect, join_room, leave_room, rooms
 from flask import abort, request, flash, session, redirect, url_for, jsonify
 from flask import render_template as rd
@@ -404,7 +404,6 @@ def apiUsers():
 
 
 @app.post("/api/login")
-@cache.cached(timeout=3600)
 def apiLogin():
     data = request.json
     try:
