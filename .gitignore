@@ -4,3 +4,4 @@
 *migrations/
 *.env
 *credentials.json
+*migrations/

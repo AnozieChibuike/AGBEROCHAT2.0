@@ -263,7 +263,7 @@ def logout():
 @app.route("/")
 @app.route("/home")
 def home():
-    return rd("index.html.jinja")
+    return rd("index.html")
 
 
 @app.route("/signup", methods=["POST", "GET"])
@@ -321,6 +321,7 @@ def login():
 def chatroom():
     room = request.args.get("room")
     user_rooms = current_user.rooms
+    general = Rooms.query.filter_by(name='General').first().id
     if not room:
         flash("Bad request", "error")
         return redirect(
@@ -347,6 +348,7 @@ def chatroom():
         messages=Room.messages.order_by(Msg.created_at.asc()).all(),
         user_rooms=user_rooms,
         is_admin=is_admin,
+        general=general
     )
 
 
@@ -367,7 +369,7 @@ def create_room():
 def join():
     room_name = request.args.get("room")
     if not room_name:
-        flash("Invalid", "error")
+        flash("Invalid param", "error")
         return redirect(
             url_for("chatroom", room=Rooms.query.filter_by(name="General").first().id)
         )
