@@ -1,52 +1,37 @@
-# name: Deploy to Google App Engine
-
-# on:
-#   push:
-#     branches:
-#       - main
-
-# jobs:
-#   deploy:
-#     runs-on: ubuntu-latest
-
-#     steps:
-#     - name: Checkout code
-#       uses: actions/checkout@v2
-
-#     - id: 'auth'
-#       uses: 'google-github-actions/auth@v2'
-#       with:
-#         credentials_json: '${{ secrets.GCP_SA_KEY }}'
-
-#     - name: Set up Cloud SDK
-#       uses: google-github-actions/setup-gcloud@main
-#       with:
-#         project_id: ${{ secrets.GCP_PROJECT_ID }}
-
-#     - name: Deploy to Google App Engine
-#       run: |
-#         gcloud app deploy --quiet
-#         # working-directory: AGBEROCHAT2.0
-
-name: SSH into Remote Server
+name: Deploy to Google App Engine
 
 on:
   push:
     branches:
       - main
 
+env:
+  CLIENT_ID: ${{ secrets.CLIENT_ID }}
+  CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+  base_url: ${{ secrets.URL }}
+  DEPLOYMENT: 1
+  DATABASE_URL: ${{ secrets.DB }}
+  CREDENTIALS: '${{ secrets.CRED }}' 
+
 jobs:
-  ssh:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v2
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-      - name: executing remote ssh commands using password
-        uses: appleboy/ssh-action@v1.0.3
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.SSH_KEY }}
-          script: whoami
+    - id: 'auth'
+      uses: 'google-github-actions/auth@v2'
+      with:
+        credentials_json: '${{ secrets.GCP_SA_KEY }}'
+
+    - name: Set up Cloud SDK
+      uses: google-github-actions/setup-gcloud@main
+      with:
+        project_id: ${{ secrets.GCP_PROJECT_ID }}
+
+    - name: Deploy to Google App Engine
+      run: |
+        bash deploy.sh
+        gcloud app deploy --quiet
