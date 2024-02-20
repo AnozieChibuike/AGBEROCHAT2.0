@@ -50,7 +50,7 @@
           </li>
           <li>
             <button id="doubleDropdownButton" data-dropdown-toggle="doubleDropdown"
-              data-dropdown-placement="right-start" type="button"
+              data-dropdown-placement="left" type="button"
               class="flex items-center justify-between w-full px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">
               My Rooms<svg class="w-2.5 h-2.5 ms-3 rtl:rotate-180" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
                 fill="none" viewBox="0 0 6 10">
@@ -59,7 +59,7 @@
               </svg>
             </button>
             <div id="doubleDropdown"
-              class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700">
+              class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-[7.5rem] dark:bg-gray-700">
               <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="doubleDropdownButton">
                 {% for user_room in user_rooms %}
                 <li>
