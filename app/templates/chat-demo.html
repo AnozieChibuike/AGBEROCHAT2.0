@@ -297,12 +297,15 @@
       <span class="stamp">{{ message.timestamp.strftime("%H:%M") }}</span>
     </div>
   </div>
-    {% endif %} {% endfor %}
+  {% endif %} {% endfor %}
+  <div class="typing imag" style>
+      <img src="{{ base_url }}/static/assets/images/typing.gif" />
+  </div>
   </section>
   <div class="input h-14 dark:bg-slate-900">
     <span id="plus" class="dark:text-white">+</span>
     <div id="input-box">
-      <input type="text" placeholder="Type message..." class="msg-input p-2 dark:bg-slate-700 dark:text-white" />
+      <input type="text" placeholder="Type message..." class="msg-input p-2 dark:bg-slate-700 dark:text-white"  oninput="handleOninput(this)" />
       <img src="{{ url_for('static',filename='/assets/images/send.png') }}" id="send" alt="send" class="dark:invert" />
     </div>
   </div>
@@ -324,12 +327,46 @@
           message: message,
         });
         input.value = "";
+        socket.emit("typing", {
+        room: "{{ room_id }}",
+        typing: false,
+        });
       }
     }
+    function handleOninput(valu) {
+      if (valu.value !== '')
+        socket.emit("typing", {
+        room: "{{ room_id }}",
+        typing: true,
+        });
+      else
+      socket.emit("typing", {
+        room: "{{ room_id }}",
+        typing: false,
+        });
+    }
+    const typing = () => {
+  const father = document.querySelector(".imag");
+  father.style.display = "flex";
+  container.appendChild(father);
+  window.scrollTo({
+    top: container.scrollHeight,
+    // behavior: "smooth",
+  });
+};
+
     socket.emit("event", {
       room: "{{ room_id }}",
       username: "{{ current_user.username }}",
     });
+    socket.on('handleTyping', (data) => {
+      console.log(data)
+      const father = document.querySelector(".imag");
+      if (data.isTyping)
+        typing()
+      else
+        father.style.display = 'none'
+    })
 
     socket.on("mes", (data) => {
       var username = `${data.user}`;
