@@ -6,4 +6,4 @@ echo DATABASE_URL=$DATABASE_URL >> .env
 echo $CREDENTIALS >> credentials.json
 
 wc -l .env
-cat credentials.json
+wc -l credentials.json

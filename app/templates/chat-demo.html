@@ -360,7 +360,6 @@
       username: "{{ current_user.username }}",
     });
     socket.on('handleTyping', (data) => {
-      console.log(data)
       const father = document.querySelector(".imag");
       if (data.isTyping)
         typing()

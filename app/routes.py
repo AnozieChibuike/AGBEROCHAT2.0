@@ -339,11 +339,12 @@ def chatroom():
             url_for("chatroom", room=Rooms.query.filter_by(name="General").first().id)
         )
     is_admin = Room.users[0] == current_user
+    room_name = Room.name if len(Room.name) < 8 else Room.name[:7] + '...'
     return rd(
         "chat-demo.html",
         base_url=base_url,
         room_id=Room.id,
-        room_name=Room.name,
+        room_name=room_name,
         users=Room.users,
         messages=Room.messages.order_by(Msg.created_at.asc()).all(),
         user_rooms=user_rooms,
