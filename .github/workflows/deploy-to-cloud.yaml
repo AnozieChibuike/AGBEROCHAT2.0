@@ -1,4 +1,34 @@
-name: Deploy to Google App Engine
+# name: Deploy to Google App Engine
+
+# on:
+#   push:
+#     branches:
+#       - main
+
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
+
+#     steps:
+#     - name: Checkout code
+#       uses: actions/checkout@v2
+
+#     - id: 'auth'
+#       uses: 'google-github-actions/auth@v2'
+#       with:
+#         credentials_json: '${{ secrets.GCP_SA_KEY }}'
+
+#     - name: Set up Cloud SDK
+#       uses: google-github-actions/setup-gcloud@main
+#       with:
+#         project_id: ${{ secrets.GCP_PROJECT_ID }}
+
+#     - name: Deploy to Google App Engine
+#       run: |
+#         gcloud app deploy --quiet
+#         # working-directory: AGBEROCHAT2.0
+
+name: SSH into Remote Server
 
 on:
   push:
@@ -6,24 +36,20 @@ on:
       - main
 
 jobs:
-  deploy:
+  ssh:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-    - id: 'auth'
-      uses: 'google-github-actions/auth@v2'
-      with:
-        credentials_json: '${{ secrets.GCP_SA_KEY }}'
+      - name: SSH into remote server
+        uses: webfactory/ssh-agent@v0.5.4
+        with:
+          ssh-private-key: ${{ secrets.SSH_KEY }}
+          # ssh-known-hosts: "example.com,192.168.1.1" # Add your server's hostname or IP address here
+          # ssh-options: "-o StrictHostKeyChecking=no"
 
-    - name: Set up Cloud SDK
-      uses: google-github-actions/setup-gcloud@main
-      with:
-        project_id: ${{ secrets.GCP_PROJECT_ID }}
-
-    - name: Deploy to Google App Engine
-      run: |
-        gcloud app deploy --quiet
-        # working-directory: AGBEROCHAT2.0
+      - name: Execute remote command
+        run: |
+          ssh user@example.com "echo 'Hello, world!'"
