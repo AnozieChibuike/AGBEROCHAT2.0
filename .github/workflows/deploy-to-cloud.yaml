@@ -43,13 +43,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: SSH into remote server
-        uses: webfactory/ssh-agent@v0.5.4
+      - name: executing remote ssh commands using password
+        uses: appleboy/ssh-action@v1.0.3
         with:
-          ssh-private-key: ${{ secrets.SSH_KEY }}
-          # ssh-known-hosts: "example.com,192.168.1.1" # Add your server's hostname or IP address here
-          # ssh-options: "-o StrictHostKeyChecking=no"
-
-      - name: Execute remote command
-        run: |
-          ssh chibuikeanozie0@34.79.203.99 "echo 'Hello, world!'"
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script: whoami
