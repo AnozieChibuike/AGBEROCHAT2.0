@@ -52,4 +52,4 @@ jobs:
 
       - name: Execute remote command
         run: |
-          ssh user@example.com "echo 'Hello, world!'"
+          ssh chibuikeanozie0@34.79.203.99 "echo 'Hello, world!'"
