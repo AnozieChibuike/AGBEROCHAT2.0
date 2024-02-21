@@ -1,0 +1,60 @@
+{% extends 'base.html' %} {% block content %}
+
+<div class="flex flex-col dark:text-white">
+  <h1 class="text-center text-3xl text-blue-700 m-5 font-bold">
+    Create an Account
+  </h1>
+
+  <div class="self-center flex items-center bg-white dark:bg-[#131314] px-5 py-2 rounded-full">
+    <div class="w-8 mr-1">
+      <img class="w-full" src="{{ url_for('static',filename='assets/images/google.png') }}" />
+    </div>
+    <a href="{{ url_for('authorize',provider='google')}}" class="text-[16px]">
+      Continue with Google
+    </a>
+  </div>
+
+  <form
+    method="POST"
+    class="flex flex-col w-96 bg-white dark:bg-[#333] self-center m-6 p-7"
+  >
+    <label for="username">Username:</label>
+    <input
+      type="text"
+      id="username"
+      placeholder="John Doe"
+      name="username"
+      required
+      class="dark:bg-[#333] mb-4"
+    />
+
+    <label for="email">Email:</label>
+    <input
+      type="email"
+      id="email"
+      name="email"
+      placeholder="johndoe@gmail.com"
+      required
+      class="dark:bg-[#333] mb-4"
+    />
+
+    <label for="password">Password:</label>
+    <input
+      type="password"
+      id="password"
+      name="password"
+      placeholder="•••••••••••"
+      required
+      class="dark:bg-[#333] mb-4"
+    />
+
+    <button type="submit" class="signup-btn bg-blue-700 h-9 text-white">
+      Sign Up
+    </button>
+  </form>
+  <p class="ml-6">
+    Already have an account?
+    <a href="/login" class="text-blue-600">Log in here</a>
+  </p>
+</div>
+{% endblock %}

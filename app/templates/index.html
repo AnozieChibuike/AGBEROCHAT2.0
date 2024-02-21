@@ -1,8 +1,8 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <div class="home-container dark:text-white ml-2 mr-2">
-        <h1 class="text-center text-3xl text-blue-700 m-5">AGBEROCHAT2.0</h1>
+    <div class="home-container dark:text-white ml-2 mr-2 flex flex-col">
+        <h1 class="text-center text-3xl text-blue-700 m-5 font-bold">AGBEROCHAT2.0</h1>
         <p>Connect with people around the world in real-time conversations.</p>
         <p>Join our vibrant community and start chatting today!</p>
         <p>Features:</p>
@@ -13,7 +13,9 @@
             <li>File sharing - Still in development</li>
             <li>Video and voice calls - Still in development</li>
         </ul>
-        <a href="/signup" class="signup-btn">Sign Up Now</a>
+        <div class="bg-blue-600 justify-center items-center flex self-center m-7 w-32 h-12">
+            <a href="/signup" class="signup-btn text-white">Sign Up Now</a>
+        </div>
         
     </div>
 {% endblock %}

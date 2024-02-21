@@ -2,7 +2,12 @@
 module.exports = {
   content: ["./app/templates/*.html","./app/static/js/*.js"],
   theme: {
-    extend: {},
+    fontFamily: {
+      'roboto': ['Roboto','sans-serif']
+    },
+    extend: {
+      
+    },
   },
   plugins: [],
   darkMode: 'class'

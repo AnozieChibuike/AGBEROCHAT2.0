@@ -285,7 +285,7 @@ def signup():
         else:
             flash("Users exists!")
             return redirect("/signup")
-    return rd("signup.html.jinja")
+    return rd("signup.html")
 
 
 @app.route("/login", methods=["POST", "GET"])
@@ -313,7 +313,7 @@ def login():
                 "chatroom", room=Rooms.query.filter_by(name="General").first().id
             )
         return redirect(next_page)
-    return rd("login.html.jinja")
+    return rd("login.html")
 
 
 @app.get("/chatbox")
