@@ -5,5 +5,5 @@ echo DEPLOYMENT=1 >> .env
 echo DATABASE_URL=$DATABASE_URL >> .env
 echo $CREDENTIALS >> credentials.json
 
-wc -l .env
+tail .env
 wc -l credentials.json

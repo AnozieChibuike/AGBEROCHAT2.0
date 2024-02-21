@@ -6,8 +6,8 @@ on:
       - main
 
 env:
-  CLIENT_ID: ${{ secrets.CLIENT_ID }}
-  CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
+  CLIENT_ID: '${{ secrets.CLIENT_ID }}'
+  CLIENT_SECRET: '${{ secrets.CLIENT_SECRET }}'
   base_url: ${{ secrets.URL }}
   DEPLOYMENT: 1
   DATABASE_URL: ${{ secrets.DB }}
