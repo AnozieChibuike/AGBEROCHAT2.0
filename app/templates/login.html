@@ -1,12 +1,12 @@
 {% extends 'base.html' %}
-
+{% block title %}Login{% endblock %}
 {% block content %}
     <div class="flex flex-col dark:text-white">
   <h1 class="text-center text-3xl text-blue-700 m-5 font-bold">
     Login
   </h1>
 
-  <div class="self-center flex items-center bg-white dark:bg-[#131314] px-3 py-2 rounded-full">
+  <div class="self-center flex items-center bg-white dark:bg-[#131314] px-3 py-2 rounded-full cursor-pointer">
     <div class="w-8 mr-2">
       <img class="w-full" src="{{ url_for('static',filename='assets/images/google.png') }}" />
     </div>
@@ -17,7 +17,7 @@
 
   <form
     method="POST"
-    class="flex flex-col w-96 bg-white dark:bg-[#333] self-center m-6 p-7"
+    class="flex flex-col w-[23rem] bg-white dark:bg-[#333] self-center m-6 p-7"
     action="/login"
   >
     <label for="email">Email:</label>
@@ -47,7 +47,7 @@
       Log In
     </button>
   </form>
-  <p class="ml-6">
+  <p class="ml-6 ">
     Don't have an account yet?
     <a href="/signup" class="text-blue-600">Sign up here</a>
   </p>

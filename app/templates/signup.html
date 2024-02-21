@@ -1,15 +1,17 @@
-{% extends 'base.html' %} {% block content %}
+{% extends 'base.html' %} 
+{% block title %}Sign up{% endblock %}
+{% block content %}
 
 <div class="flex flex-col dark:text-white">
   <h1 class="text-center text-3xl text-blue-700 m-5 font-bold">
     Create an Account
   </h1>
 
-  <div class="self-center flex items-center bg-white dark:bg-[#131314] px-5 py-2 rounded-full">
-    <div class="w-8 mr-1">
+  <div class="self-center flex items-center bg-white dark:bg-[#131314] px-3 py-2 rounded-full cursor-pointer">
+    <div class="w-8 mr-2">
       <img class="w-full" src="{{ url_for('static',filename='assets/images/google.png') }}" />
     </div>
-    <a href="{{ url_for('authorize',provider='google')}}" class="text-[16px]">
+    <a href="{{ url_for('authorize',provider='google')}}" class="text-[17px] font-roboto tracking-[0.25px]" >
       Continue with Google
     </a>
   </div>
