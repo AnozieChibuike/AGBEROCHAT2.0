@@ -867,6 +867,10 @@ video {
   width: 23rem;
 }
 
+.w-auto {
+  width: auto;
+}
+
 .max-w-md {
   max-width: 28rem;
 }
