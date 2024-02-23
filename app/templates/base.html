@@ -1,20 +1,19 @@
 <!DOCTYPE html>
-<html class="">
+<html class>
   <head>
-    <link rel="icon" type="image/x-icon" href="{{ url_for('static',filename='/assets/images/Logo.ico') }}">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;900&family=Urbanist:wght@900&display=swap" rel="stylesheet">
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0"
+    <link
+      rel="icon"
+      type="image/x-icon"
+      href="{{ url_for('static',filename='/assets/images/Logo.ico') }}"
     />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;900&family=Urbanist:wght@900&display=swap"
+      rel="stylesheet"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{% block title %}{% endblock %}</title>
-    <style>
-      * {
-        transition: background-color 0.5s;
-      }
-    </style>
     <link
       href="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.0/flowbite.min.css"
       rel="stylesheet"
@@ -32,7 +31,7 @@
         onclick="toggleDarkMode()"
         id="bgImg"
         src="{{ url_for('static',filename='/assets/images/dark.gif') }}"
-        class="cursor-pointer darker w-[37%]"
+        class="cursor-pointer w-[37%]"
       />
     </div>
 
@@ -177,13 +176,26 @@
       {% endblock %}
     </div>
     <script>
+      let theme = localStorage.getItem("theme") || "light";
+      if (theme === "light") {
+        document.querySelector("#bgImg").src = "static/assets/images/light.gif";
+        document.documentElement.classList.remove("dark");
+        document.querySelector("#bgImg").classList.remove("darker");
+      } else {
+        document.querySelector("#bgImg").src = "static/assets/images/dark.gif";
+        document.querySelector("#bgImg").classList.add("darker");
+        document.documentElement.classList.add("dark");
+      }
       const toggleDarkMode = () => {
-        if (document.querySelector("#bgImg").classList.contains("darker"))
+        if (document.querySelector("#bgImg").classList.contains("darker")) {
           document.querySelector("#bgImg").src =
             "static/assets/images/light.gif";
-        else
+          localStorage.setItem("theme", "light");
+        } else {
           document.querySelector("#bgImg").src =
             "static/assets/images/dark.gif";
+          localStorage.setItem("theme", "dark");
+        }
         document.querySelector("#bgImg").classList.toggle("darker");
         document.documentElement.classList.toggle("dark");
       };

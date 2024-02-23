@@ -311,6 +311,14 @@
     </div>
   </div>
   <script>
+    let theme = localStorage.getItem("theme") || "light";
+    if (theme === "light") {
+      document.querySelector("#darker").innerText = "DarkMode";
+      document.documentElement.classList.remove("dark");
+    } else {
+      document.querySelector("#darker").innerText = "LightMode";
+      document.documentElement.classList.add("dark");
+    }
     const socket = io.connect(
       "{{base_url}}"
     );
