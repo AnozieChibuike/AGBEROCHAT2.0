@@ -4,6 +4,3 @@ echo base_url=$base_url >> .env
 echo DEPLOYMENT=1 >> .env
 echo DATABASE_URL=$DATABASE_URL >> .env
 echo $CREDENTIALS >> credentials.json
-
-tail .env
-wc -l credentials.json
