@@ -5,7 +5,7 @@ from google.oauth2 import service_account
 import uuid
 from app import app, db, socket
 from flask_socketio import disconnect, join_room, leave_room, rooms
-from flask import abort, request, flash, session, redirect, url_for, jsonify
+from flask import abort, request, flash, session, redirect, url_for, jsonify, abort
 from flask import render_template as rd
 from app.models import Users, Msg, Rooms
 from flask_login import current_user, login_user, logout_user, login_required
@@ -315,6 +315,24 @@ def login():
         return redirect(next_page)
     return rd("login.html")
 
+@app.get("/profile")
+@login_required
+def profile():
+    query_user = request.args.get('u')
+    if not Users.query.filter_by(username=query_user).first():
+        abort(404)
+    query_user = Users.query.filter_by(username=query_user).first()
+    return rd('profile.html',user=query_user)
+    
+@app.errorhandler(404)
+def page_not_found(error):
+    # You can customize the response here
+    return rd('error.html',error='404'), 404
+
+@app.errorhandler(500)
+def page_not_found(error):
+    # You can customize the response here
+    return rd('error.html',error='500'), 500
 
 @app.get("/chatbox")
 @login_required
