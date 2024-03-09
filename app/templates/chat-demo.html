@@ -46,6 +46,10 @@
         class="z-10 hidden bg-white divide-y divide-gray-100 rounded-lg shadow w-44 dark:bg-gray-700">
         <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="multiLevelDropdownButton">
           <li>
+            <a href="/profile/{{ current_user.username }}?prev_url={{ base_url }}/chatbox?room={{ room_id }}"
+              class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Profile</a>
+          </li>
+          <li>
             <a href="{{ url_for('chatroom',room=general)}}"
               class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">General</a>
           </li>
@@ -287,11 +291,15 @@
         <span class="message-body">{{ message.body }}</span>
         <span class="stamp">{{ message.timestamp.strftime("%H:%M") }}</span>
       </div>
-      <img src="{{ message.author.image_url }}">
+      <a href="/profile/{{ message.author.username }}?prev_url={{ base_url }}/chatbox?room={{ room_id }}">
+        <img src="{{ message.author.image_url }}">
+      </a>
     </div>
     {% else %}
     <div class="received-father">
-    <img src="{{ message.author.image_url }}">
+    <a href="/profile/{{ message.author.username }}?prev_url={{ base_url }}/chatbox?room={{ room_id }}">
+      <img src="{{ message.author.image_url }}">
+    </a>
     <div class="message received dark:bg-gray-800 dark:text-white">
       <span class="user">{{ message.author.username }}</span>
       <span class="message-body">{{ message.body }}</span>

@@ -33,8 +33,11 @@ const handleChat = (username, message, isSelf, imageUrl) => {
   const stamp = document.createElement("span");
   const msg = document.createElement("span");
   const father = document.createElement("div");
+  const link = document.createElement("a");
   const image = document.createElement("img");
+  link.href = `/profile/${username}`
   image.src = imageUrl;
+  link.appendChild(image)
   father.classList.add(isSelf ? "sent-father" : "received-father");
   messag.classList.add("message", "dark:text-white");
   messag.classList.add(isSelf ? "dark:bg-teal-900" : "dark:bg-gray-800");
@@ -49,8 +52,8 @@ const handleChat = (username, message, isSelf, imageUrl) => {
   messag.appendChild(stamp);
   father.appendChild(messag);
   if (father.classList.contains("received-father"))
-    father.insertBefore(image, messag);
-  else father.appendChild(image);
+    father.insertBefore(link, messag);
+  else father.appendChild(link);
   container.appendChild(father);
   window.scrollTo({
     top: container.scrollHeight,

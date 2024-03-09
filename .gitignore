@@ -6,3 +6,4 @@
 *credentials.json
 *migrations/
 *.venv/
+*tmp/

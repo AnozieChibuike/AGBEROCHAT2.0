@@ -14,18 +14,23 @@ from urllib.parse import urlencode
 import requests
 import secrets
 import json
+from werkzeug.utils import secure_filename
 
 load_dotenv()
 
-base_url=os.getenv('base_url')
+base_url = os.getenv("base_url")
 
 users = {}
 
-def upload_blob( destination_blob_name,file,bucket_name='agberochat'):
+
+def upload_blob(destination_blob_name, file, bucket_name="agberochat"):
     """Uploads a file to the Google Cloud Storage bucket."""
-    credentials = service_account.Credentials.from_service_account_file(os.getcwd()+"/"+'credentials.json',scopes=["https://www.googleapis.com/auth/cloud-platform"],)
+    credentials = service_account.Credentials.from_service_account_file(
+        os.getcwd() + "/" + "credentials.json",
+        scopes=["https://www.googleapis.com/auth/cloud-platform"],
+    )
     # Instantiates a client
-    storage_client = storage.Client(project='flask-app-404911', credentials=credentials)
+    storage_client = storage.Client(project="flask-app-404911", credentials=credentials)
 
     # Get the bucket
     bucket = storage_client.get_bucket(bucket_name)
@@ -35,14 +40,14 @@ def upload_blob( destination_blob_name,file,bucket_name='agberochat'):
 
     # Rename the destination blob (object) name
     destination_blob_name = f"{id}/{uuid.uuid4()}.{extension}"
-    
-    try: 
+
+    try:
         blobs = bucket.list_blobs(prefix=id)
 
-    # Delete each blob
+        # Delete each blob
         for blob in blobs:
             blob.delete()
-            print(f'Deleted {blob.name}')
+            print(f"Deleted {blob.name}")
     except:
         pass
     # Upload the file
@@ -54,16 +59,15 @@ def upload_blob( destination_blob_name,file,bucket_name='agberochat'):
     # print(f"File {source_file_path} uploaded to {destination_blob_name} in {bucket_name}.")
 
 
-
-@app.post('/upload-img')
+@app.post("/upload-img")
 def uploadImg():
-    file = request.files.get('pfp')
-    user = Users.get(id=file.filename.split('.')[0])
+    file = request.files.get("pfp")
+    user = Users.get(id=file.filename.split(".")[0])
     if not file:
-        return jsonify({'error': 'Image required'}), 400
-    user.image_url = upload_blob(file.filename,file)
+        return jsonify({"error": "Image required"}), 400
+    user.image_url = upload_blob(file.filename, file)
     user.save()
-    return jsonify({'data': user.image_url})
+    return jsonify({"data": user.image_url})
 
 
 @app.route("/authorize/<provider>")
@@ -173,7 +177,12 @@ def oauth2_callback(provider):
 
 @socket.on("typing")
 def handleTyping(data):
-    socket.emit("handleTyping", {"isTyping": data["typing"]},to=data['room'],include_self=False)
+    socket.emit(
+        "handleTyping",
+        {"isTyping": data["typing"]},
+        to=data["room"],
+        include_self=False,
+    )
 
 
 @socket.on("event")
@@ -315,31 +324,78 @@ def login():
         return redirect(next_page)
     return rd("login.html")
 
-@app.get("/profile")
+
+@app.route("/profile/<usern>", methods=["POST", "GET"])
 @login_required
-def profile():
-    query_user = request.args.get('u')
+def profile(usern):
+    query_user = usern
+    general = Rooms.query.filter_by(name="General").first().id
+    prev_url = request.args.get("prev_url",url_for('chatroom',room=general))
     if not Users.query.filter_by(username=query_user).first():
         abort(404)
     query_user = Users.query.filter_by(username=query_user).first()
-    return rd('profile.html',user=query_user)
+    if request.method == "POST":
+        print(request.form)
+        if len(request.form.get("bio")) >= 500:
+            flash(f'Bio should not be more than 500 characters - {len(request.form.get("bio"))}/500')
+        else:
+            current_user.bio = request.form.get("bio")
+        if request.form.get('username',None):
+            user = Users.query.filter_by(username=request.form.get('username')).first()
+            if user==current_user:
+                pass
+            elif user:
+                flash('Username already taken')
+            else:
+                current_user.username = request.form.get('username')
+        if request.files.get('pfp'):
+            file = request.files.get('pfp')    
+            if file.filename == '':
+                flash('No file selected')
+            else:
+                current_dir = os.path.dirname(os.path.abspath(__file__))
+                tmp = os.path.join(current_dir,'static','assets','images','tmp',current_user.id)
+                tmp = os.path.normpath(tmp)
+                if not os.path.exists(tmp):
+                    os.makedirs(tmp)
+                for files in os.listdir(tmp):
+                    file_path = os.path.join(tmp,files)
+                    os.unlink(file_path)
+                filename = secure_filename(file.filename)
+                file.save(os.path.join(tmp, filename))
+                current_user.image_url = f'{base_url}/static/assets/images/tmp/{current_user.id}/{filename}'
+        current_user.save()
+        return redirect(f'/profile/{current_user.username}?prev_url={prev_url}')
     
+    user_rooms = current_user.rooms
+    return rd(
+        "profile.html",
+        user=query_user,
+        base_url=base_url,
+        user_rooms=user_rooms,
+        prev_url=prev_url,
+        general=general,
+    )
+
+
 @app.errorhandler(404)
 def page_not_found(error):
     # You can customize the response here
-    return rd('error.html',error='404'), 404
+    return rd("error.html", error="404"), 404
+
 
 @app.errorhandler(500)
 def page_not_found(error):
     # You can customize the response here
-    return rd('error.html',error='500'), 500
+    return rd("error.html", error="500"), 500
+
 
 @app.get("/chatbox")
 @login_required
 def chatroom():
     room = request.args.get("room")
     user_rooms = current_user.rooms
-    general = Rooms.query.filter_by(name='General').first().id
+    general = Rooms.query.filter_by(name="General").first().id
     if not room:
         flash("Bad request", "error")
         return redirect(
@@ -357,7 +413,7 @@ def chatroom():
             url_for("chatroom", room=Rooms.query.filter_by(name="General").first().id)
         )
     is_admin = Room.users[0] == current_user
-    room_name = Room.name if len(Room.name) < 8 else Room.name[:7] + '...'
+    room_name = Room.name if len(Room.name) < 8 else Room.name[:7] + "..."
     return rd(
         "chat-demo.html",
         base_url=base_url,
@@ -367,7 +423,7 @@ def chatroom():
         messages=Room.messages.order_by(Msg.created_at.asc()).all(),
         user_rooms=user_rooms,
         is_admin=is_admin,
-        general=general
+        general=general,
     )
 
 
@@ -416,7 +472,7 @@ def apiUsers():
     users = [i.to_dict() for i in Users.all()]
     if id:
         value = list(filter(lambda x: x["id"] == id, users))
-    
+
         return jsonify({"data": value})
     if email:
         value = list(filter(lambda x: x["email"] == email, users))
@@ -476,25 +532,25 @@ def apiRooms():
     try:
         id = data["id"]
         user = Users.get(id=id)
-        room_id = data.get('room_id')
+        room_id = data.get("room_id")
         if not user:
             return jsonify({"error": "User does not exist"}), 404
         if room_id:
             room = Rooms.get(id=room_id)
-            room_messages =  [
-                    {
-                        "createdAt": k.created_at.isoformat(),
-                        "text": k.body,
-                        "_id": k.id,
-                        "user": {
-                            "_id": k.author.id,
-                            "name": k.author.username,
-                            "avatar": k.author.image_url,
-                        },
-                    }
-                    for k in room.messages.order_by(Msg.created_at.desc()).all()
-                ]
-            return {"data": room_messages, "user": user.to_dict()}        
+            room_messages = [
+                {
+                    "createdAt": k.created_at.isoformat(),
+                    "text": k.body,
+                    "_id": k.id,
+                    "user": {
+                        "_id": k.author.id,
+                        "name": k.author.username,
+                        "avatar": k.author.image_url,
+                    },
+                }
+                for k in room.messages.order_by(Msg.created_at.desc()).all()
+            ]
+            return {"data": room_messages, "user": user.to_dict()}
         users_rooms = [
             {
                 "id": i.id,

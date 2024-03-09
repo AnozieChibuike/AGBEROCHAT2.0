@@ -8,4 +8,4 @@ def make_shell_context():
 
 if not app.config['DEPLOYMENT']:
     if __name__ == "__main__":
-        socket.run(app=app,debug=True,host='0.0.0.0')
+        socket.run(app=app,host='0.0.0.0')

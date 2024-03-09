@@ -12,6 +12,7 @@ base_url = os.getenv('base_url')
 class Users(UserMixin,BaseModel):
     email = db.Column(db.String(120), index=True, unique=True)
     username = db.Column(db.String(120), index=True,unique=True)
+    bio = db.Column(db.String(500))
     password_hash = db.Column(db.String(1024))
     is_admin = db.Column(db.Boolean,default=False)
     msg = db.relationship('Msg', backref='author', lazy='dynamic')
