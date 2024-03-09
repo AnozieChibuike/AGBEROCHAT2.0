@@ -47,7 +47,7 @@ def upload_blob(destination_blob_name, file, bucket_name="agberochat"):
         # Delete each blob
         for blob in blobs:
             blob.delete()
-            print(f"Deleted {blob.name}")
+
     except:
         pass
     # Upload the file
@@ -211,6 +211,22 @@ def _disconnect():
         pass
 
 
+@socket.on("follow")
+def follow(data):
+    user = Users.get(id=data["user"])
+    user2 = Users.get(id=data["user2"])
+    user.follow(user2)
+    user.save()
+
+
+@socket.on("unfollow")
+def unfollow(data):
+    user = Users.get(id=data["user"])
+    user2 = Users.get(id=data["user2"])
+    user.unfollow(user2)
+    user.save()
+
+
 @socket.on("custom_message")
 def handleMessage(data):
     # data["message"], data["room"],
@@ -330,52 +346,108 @@ def login():
 def profile(usern):
     query_user = usern
     general = Rooms.query.filter_by(name="General").first().id
-    prev_url = request.args.get("prev_url",url_for('chatroom',room=general))
+    prev_url = request.args.get("prev_url", url_for("chatroom", room=general))
     if not Users.query.filter_by(username=query_user).first():
         abort(404)
     query_user = Users.query.filter_by(username=query_user).first()
+    isFollowing = current_user in query_user.get_followers()
+    followers = query_user.get_followers()
+    following = query_user.get_following()
     if request.method == "POST":
-        print(request.form)
         if len(request.form.get("bio")) >= 500:
-            flash(f'Bio should not be more than 500 characters - {len(request.form.get("bio"))}/500')
+            flash(
+                f'Bio should not be more than 500 characters - {len(request.form.get("bio"))}/500'
+            )
         else:
             current_user.bio = request.form.get("bio")
-        if request.form.get('username',None):
-            user = Users.query.filter_by(username=request.form.get('username')).first()
-            if user==current_user:
+        if request.form.get("username", None):
+            user = Users.query.filter_by(username=request.form.get("username")).first()
+            if user == current_user:
                 pass
             elif user:
-                flash('Username already taken')
+                flash("Username already taken")
             else:
-                current_user.username = request.form.get('username')
-        if request.files.get('pfp'):
-            file = request.files.get('pfp')    
-            if file.filename == '':
-                flash('No file selected')
+
+                room = current_user.rooms
+                for rooms in room:
+                    p = Msg(
+                        body=f"(AUTO) {current_user.username} changed their username to: {request.form.get('username')}",
+                        author=current_user,
+                        room=rooms,
+                    )
+                    p.save()
+                    socket.emit(
+                        "mes",
+                        {
+                            "user": current_user.username,
+                            "imageUrl": current_user.image_url,
+                            "msg": f"(AUTO) {current_user.username} changed their username to: {request.form.get('username')}",
+                            "api_message": {
+                                "createdAt": p.created_at.isoformat(),
+                                "text": p.body,
+                                "_id": p.id,
+                                "user": {
+                                    "_id": p.author.id,
+                                    "name": p.author.username,
+                                    "avatar": p.author.image_url,
+                                },
+                            },
+                        },
+                        to=rooms.id,
+                    )
+                current_user.username = request.form.get("username")
+        if request.files.get("pfp"):
+            file = request.files.get("pfp")
+            if file.filename == "":
+                flash("No file selected")
             else:
                 current_dir = os.path.dirname(os.path.abspath(__file__))
-                tmp = os.path.join(current_dir,'static','assets','images','tmp',current_user.id)
+                tmp = os.path.join(
+                    current_dir, "static", "assets", "images", "tmp", current_user.id
+                )
                 tmp = os.path.normpath(tmp)
                 if not os.path.exists(tmp):
                     os.makedirs(tmp)
                 for files in os.listdir(tmp):
-                    file_path = os.path.join(tmp,files)
+                    file_path = os.path.join(tmp, files)
                     os.unlink(file_path)
                 filename = secure_filename(file.filename)
                 file.save(os.path.join(tmp, filename))
-                current_user.image_url = f'{base_url}/static/assets/images/tmp/{current_user.id}/{filename}'
+                current_user.image_url = (
+                    f"{base_url}/static/assets/images/tmp/{current_user.id}/{filename}"
+                )
         current_user.save()
-        return redirect(f'/profile/{current_user.username}?prev_url={prev_url}')
-    
+        return redirect(f"/profile/{current_user.username}?prev_url={prev_url}")
+
     user_rooms = current_user.rooms
     return rd(
         "profile.html",
+        isFollowing=isFollowing,
         user=query_user,
         base_url=base_url,
         user_rooms=user_rooms,
         prev_url=prev_url,
         general=general,
+        followers=followers,
+        following=following,
     )
+
+@app.route("/profile/<usern>/<query>")
+@login_required
+def following(usern,query):
+    query_user = usern
+    if not Users.query.filter_by(username=query_user).first():
+        abort(404)
+    if query.lower() not in ['followers','following']:
+        abort(404)
+    query_user = Users.query.filter_by(username=query_user).first()
+    if query.lower() == 'following':
+        query = query_user.get_following()
+        title = 'Following'
+    else:
+        query = query_user.get_followers()
+        title = 'Followers'
+    return rd('user_page.html',query=query,user=query_user,base_url=base_url,title=title)
 
 
 @app.errorhandler(404)
@@ -431,6 +503,8 @@ def chatroom():
 @login_required
 def create_room():
     name = request.form["room"]
+    if name.lower() == "general":
+        flash("Sensored name, Cannot create Room", "error")
     owner = current_user
     room = Rooms(name=name)
     room.users.append(owner)
@@ -575,7 +649,7 @@ def apiRooms():
         ]
         return {"data": users_rooms, "user": user.to_dict()}
     except Exception as e:
-        print(e)
+
         return jsonify({"error": "Parameters missing"}), 404
 
 
@@ -598,6 +672,8 @@ def api_create_room():
     data = request.json
     try:
         name = data["name"]
+        if name.lower() == "general":
+            return jsonify({"error": "Cannot create room with such name"}), 404
         user = Users.get(id=data["user_id"])
         if not user:
             return jsonify({"error": "User does not exist"}), 404

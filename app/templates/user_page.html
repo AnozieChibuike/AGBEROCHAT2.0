@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>{{ title }} - {{ user.username }}</title>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"
+      integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA=="
+      crossorigin="anonymous"
+    ></script>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static',filename='/css/output.css') }}"
+    />
+    <link
+      rel="icon"
+      type="image/x-icon"
+      href="{{ url_for('static',filename='/assets/images/Logo.ico') }}"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;900&family=Urbanist:wght@900&display=swap"
+      rel="stylesheet"
+    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  </head>
+  <body class="m-2">
+    <a href="/profile/{{ user.username }}" class="cursor-pointer">
+      <img src="{{ url_for('static',filename='/assets/images/close.png') }}" />
+    </a>
+    <p class="text-center font-bold text-xl">{{ title }}</p>
+    <div class="m-5 flex flex-col mt-10">
+      {% for users in query %}
+      <div class="flex justify-between items-center flex-row">
+        <div class="flex items-center flex-1" onclick="document.getElementById('prof').click()">     
+          <div class="rounded-full w-14 h-14 overflow-hidden border mr-2">
+            <img src="{{ users.image_url }}" class="w-full h-full" />
+          </div>
+          <a id="prof" href="/profile/{{ users.username }}" class="text-[19.5px]">{{ users.username }}</a>
+        </div>
+        {% if users in current_user.get_following() %}
+        <button
+          onclick="follow('{{ users.id }}')"
+          id="follow"
+          class="bg-red-600 text-white w-[5.5rem] rounded-lg h-8 self-center"
+        >
+          Unfollow
+        </button>
+        {% elif users == current_user  %}
+        <div></div>
+        {% else %}
+        <button
+          onclick="follow('{{ users.id }}')"
+          id="follow"
+          class="bg-blue-600 text-white w-[5.5rem] rounded-lg h-8 self-center"
+        >
+          Follow
+        </button>
+        {% endif %} 
+      </div>
+      {% endfor %}
+    </div>
+    <script>
+      const socket = io.connect("{{base_url}}");
+      const follow = (user_id) => {
+        const followBTN = document.getElementById("follow");
+        if (followBTN.innerText == "Follow") {
+          followBTN.innerText = "Unfollow";
+          followBTN.classList.remove("bg-blue-600");
+          followBTN.classList.add("bg-red-600");
+          socket.emit("follow", {
+            user: "{{ current_user.id }}",
+            user2: user_id,
+          });
+        } else {
+          followBTN.innerText = "Follow";
+          followBTN.classList.remove("bg-red-600");
+          followBTN.classList.add("bg-blue-600");
+
+          socket.emit("unfollow", {
+            user: "{{ current_user.id }}",
+            user2: user_id,
+          });
+        }
+      };
+    </script>
+  </body>
+</html>

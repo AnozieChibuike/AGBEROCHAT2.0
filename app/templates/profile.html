@@ -4,6 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AgberoChat - {{ user.username }}</title>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"
+      integrity="sha512-q/dWJ3kcmjBLU4Qc47E4A9kTB4m3wuTY7vkFJDTZKjTs8jhyGQnaUrxa0Ytd0ssMZhbNua9hE+E7Qv1j+DyZwA=="
+      crossorigin="anonymous"
+    ></script>
     <link
       rel="stylesheet"
       href="{{ url_for('static',filename='/css/output.css') }}"
@@ -79,7 +84,7 @@
           >
             <li>
               <a
-              href="/profile/{{ current_user.username }}?prev_url={{ user.username }}"
+                href="/profile/{{ current_user.username }}?prev_url={{ user.username }}"
                 class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
                 >ME</a
               >
@@ -186,7 +191,7 @@
 
     <section class="mt-5">
       {% if user.username == current_user.username %}
-      <form method="post" enctype="multipart/form-data" class="flex flex-col" >
+      <form method="post" enctype="multipart/form-data" class="flex flex-col">
         <input
           type="file"
           name="pfp"
@@ -217,6 +222,20 @@
           </div>
         </div>
         <h1 class="self-center">ME</h1>
+        <div class="flex justify-around mt-3">
+          <a href="/profile/{{ user.username }}/followers">
+            <div class="flex flex-col">
+              <span class="self-center font-bold">{{ followers|length }}</span>
+              <span>follower(s)</span>
+            </div>
+          </a>
+          <a href="/profile/{{ user.username }}/following">
+            <div class="flex flex-col">
+              <span class="self-center font-bold">{{ following|length }}</span>
+              <span>following(s)</span>
+            </div>
+          </a>
+        </div>
         <p>Bio:</p>
         <textarea
           name="bio"
@@ -257,6 +276,39 @@
           />
         </div>
         <h1 class="self-center">{{ user.username }}</h1>
+        <div class="flex justify-around mt-3">
+          <a href="/profile/{{ user.username }}/followers">
+            <div class="flex flex-col">
+              <span class="self-center font-bold" id="followers"
+                >{{ followers|length }}</span
+              >
+              <span>follower(s)</span>
+            </div>
+          </a>
+          <a href="/profile/{{ user.username }}/following">
+            <div class="flex flex-col">
+              <span class="self-center font-bold">{{ following|length }}</span>
+              <span>following(s)</span>
+            </div>
+          </a>
+        </div>
+        {% if isFollowing %}
+        <button
+          onclick="follow()"
+          id="follow"
+          class="bg-red-600 text-white w-20 h-8 self-center mt-4"
+        >
+          Unfollow
+        </button>
+        {% else %}
+        <button
+          onclick="follow()"
+          id="follow"
+          class="bg-blue-600 text-white w-20 h-8 self-center mt-4"
+        >
+          Follow
+        </button>
+        {% endif %}
         <p class="self-center mt-10 font-bold mb-4">About me</p>
         {% if user.bio == None %}
         <p class="mb-3">Nothing to show here</p>
@@ -267,17 +319,44 @@
       {% endif %}
     </section>
     <script>
+      const socket = io.connect("{{base_url}}");
       const select_file = () => document.getElementById("imgInput").click();
       const showElement = () =>
         (document.getElementById("cam").style.display = "flex");
       const hideElement = () =>
         (document.getElementById("cam").style.display = "none");
-      document
-        .getElementById("imgInput")
-        .addEventListener("change", (event) => {
+      const imageInput = document.getElementById("imgInput");
+      if (imageInput) {
+        imageInput.addEventListener("change", (event) => {
           hideElement();
-          document.querySelector('form').submit();
+          document.querySelector("form").submit();
         });
+      }
+      const follow = () => {
+        const followBTN = document.getElementById("follow");
+        if (followBTN.innerText == "Follow") {
+          document.getElementById("followers").innerText =
+            Number(document.getElementById("followers").innerText) + 1;
+          followBTN.innerText = "Unfollow";
+          followBTN.classList.remove("bg-blue-600");
+          followBTN.classList.add("bg-red-600");
+          socket.emit("follow", {
+            user: "{{ current_user.id }}",
+            user2: "{{ user.id }}",
+          });
+        } else {
+          document.getElementById("followers").innerText =
+            Number(document.getElementById("followers").innerText) - 1;
+          followBTN.innerText = "Follow";
+          followBTN.classList.remove("bg-red-600");
+          followBTN.classList.add("bg-blue-600");
+
+          socket.emit("unfollow", {
+            user: "{{ current_user.id }}",
+            user2: "{{ user.id }}",
+          });
+        }
+      };
     </script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/flowbite/2.2.0/flowbite.min.js"></script>
   </body>
