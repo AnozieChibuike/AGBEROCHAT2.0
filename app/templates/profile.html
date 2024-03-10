@@ -310,7 +310,7 @@
         </button>
         {% endif %}
         <p class="self-center mt-10 font-bold mb-4">About me</p>
-        {% if user.bio == None %}
+        {% if not user.bio %}
         <p class="mb-3">Nothing to show here</p>
         {% else %}
         <p class="mb-3">{{ user.bio }}</p>
