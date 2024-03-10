@@ -4,15 +4,7 @@ on:
   push:
     branches:
       - main
-
-env:
-  CLIENT_ID: '${{ secrets.CLIENT_ID }}'
-  CLIENT_SECRET: '${{ secrets.CLIENT_SECRET }}'
-  base_url: ${{ secrets.URL }}
-  DEPLOYMENT: 1
-  DATABASE_URL: ${{ secrets.DB }}
-  CREDENTIALS: '${{ secrets.CRED }}' 
-
+  
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -21,17 +13,15 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - id: 'auth'
-      uses: 'google-github-actions/auth@v2'
-      with:
-        credentials_json: '${{ secrets.GCP_SA_KEY }}'
-
-    - name: Set up Cloud SDK
-      uses: google-github-actions/setup-gcloud@main
-      with:
-        project_id: ${{ secrets.GCP_PROJECT_ID }}
-
-    - name: Deploy to Google App Engine
+    - name: Deploy to EC2 instance
       run: |
-        bash deploy.sh
-        gcloud app deploy --quiet
+        echo '${{ secrets.key }}' > flask.pem
+        ssh -i "flask.pem" ubuntu@ec2-3-80-180-122.compute-1.amazonaws.com
+        cd AGBEROCHAT2.0
+        sudo systemctl stop AGBEROCHAT2_0
+        git pull
+        sudo systemctl daemon-reload
+        sudo systemctl start AGBEROCHAT2_0
+        sudo systemctl enable AGBEROCHAT2_0
+        sudo systemctl restart nginx
+
