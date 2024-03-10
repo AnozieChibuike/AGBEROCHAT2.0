@@ -9,9 +9,9 @@
 
   <div class="self-center flex items-center bg-white dark:bg-[#131314] px-3 py-2 rounded-full cursor-pointer">
     <div class="w-8 mr-2">
-      <img class="w-full" src="{{ url_for('static',filename='assets/images/google.png') }}" />
+      <img class="w-full" src="{{ base_url }}/static/assets/images/google.png" />
     </div>
-    <a href="{{ url_for('authorize',provider='google')}}" class="text-[17px] font-roboto tracking-[0.25px]" >
+    <a href="{{ base_url }}/authorize?provider=google" class="text-[17px] font-roboto tracking-[0.25px]" >
       Continue with Google
     </a>
   </div>

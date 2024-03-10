@@ -9,12 +9,12 @@
     ></script>
     <link
       rel="stylesheet"
-      href="{{ url_for('static',filename='/css/output.css') }}"
+      href="{{ base_url }}/static/css/output.css"
     />
     <link
       rel="icon"
       type="image/x-icon"
-      href="{{ url_for('static',filename='/assets/images/Logo.ico') }}"
+      href="{{ base_url }}/static/assets/images/Logo.ico"
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -27,7 +27,7 @@
   <body class="m-2">
     <div class="flex justify-between mb-7">
       <a href="/profile/{{ user.username }}" class="cursor-pointer">
-        <img src="{{ url_for('static',filename='/assets/images/close.png') }}" />
+        <img src="{{ base_url }}/static/assets/images/close.png" />
       </a>
       <p class="text-center font-bold text-xl">
           {{ user.username }}

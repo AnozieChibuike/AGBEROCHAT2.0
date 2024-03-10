@@ -288,7 +288,7 @@ def logout():
 @app.route("/")
 @app.route("/home")
 def home():
-    return rd("index.html")
+    return rd("index.html",base_url=base_url)
 
 
 @app.route("/signup", methods=["POST", "GET"])
@@ -310,7 +310,7 @@ def signup():
         else:
             flash("Users exists!")
             return redirect("/signup")
-    return rd("signup.html")
+    return rd("signup.html",base_url=base_url)
 
 
 @app.route("/login", methods=["POST", "GET"])
@@ -338,7 +338,7 @@ def login():
                 "chatroom", room=Rooms.query.filter_by(name="General").first().id
             )
         return redirect(next_page)
-    return rd("login.html")
+    return rd("login.html",base_url=base_url)
 
 
 @app.route("/profile/<usern>", methods=["POST", "GET"])

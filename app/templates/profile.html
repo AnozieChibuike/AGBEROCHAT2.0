@@ -11,12 +11,12 @@
     ></script>
     <link
       rel="stylesheet"
-      href="{{ url_for('static',filename='/css/output.css') }}"
+      href="{{ base_url }}/static/css/output.css"
     />
     <link
       rel="icon"
       type="image/x-icon"
-      href="{{ url_for('static',filename='/assets/images/Logo.ico') }}"
+      href="{{ base_url }}/static/assets/images/Logo.ico"
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -38,7 +38,7 @@
       <a href="{{ prev_url }}">
         <div class="back">
           <img
-            src="{{ url_for('static',filename='/assets/images/back.png') }}"
+            src="{{ base_url }}/static/assets/images/back.png"
             class="filter dark:invert w-14"
             alt=""
           />
@@ -91,7 +91,7 @@
             </li>
             <li>
               <a
-                href="{{ url_for('chatroom',room=general)}}"
+                href="{{ base_url }}/chatroom?room=general"
                 class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
                 >General</a
               >
@@ -131,7 +131,7 @@
                   {% for user_room in user_rooms %}
                   <li>
                     <a
-                      href="{{ url_for('chatroom',room=user_room.id) }}"
+                      href="{{ base_url }}/chatroom?room={{ user_room.id }}"
                       class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
                       >{{ user_room.name }}</a
                     >
@@ -216,7 +216,7 @@
             id="cam"
           >
             <img
-              src="{{ url_for('static',filename='/assets/images/camera.png') }}"
+              src="{{ base_url }}/static/assets/images/camera.png"
               class="w-6"
             />
           </div>

@@ -4,7 +4,7 @@
     <link
       rel="icon"
       type="image/x-icon"
-      href="{{ url_for('static',filename='/assets/images/Logo.ico') }}"
+      href="{{ base_url }}/static/assets/images/Logo.ico"
     />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -20,7 +20,7 @@
     />
     <link
       rel="stylesheet"
-      href="{{ url_for('static',filename='/css/output.css') }}"
+      href="{{ base_url }}/static/css/output.css"
     />
   </head>
   <body class="bg-[#d9d9d9] dark:bg-[#2d2d2d] pt-28 pb-20">
@@ -30,7 +30,7 @@
       <img
         onclick="toggleDarkMode()"
         id="bgImg"
-        src="{{ url_for('static',filename='/assets/images/dark.gif') }}"
+        src="{{ base_url }}/static/assets/images/dark.gif"
         class="cursor-pointer w-[37%]"
       />
     </div>
@@ -46,7 +46,7 @@
             class="w-[3.1rem] h-[3.1rem] rounded-full flex justify-center items-center bg-black overflow-hidden"
           >
             <img
-              src="{{ url_for('static',filename='/assets/images/Logo.gif') }}"
+              src="{{ base_url }}/static/assets/images/Logo.gif"
               class="w-10"
               alt="AGBEROCHAT Logo"
             />
@@ -189,11 +189,11 @@
       const toggleDarkMode = () => {
         if (document.querySelector("#bgImg").classList.contains("darker")) {
           document.querySelector("#bgImg").src =
-            "static/assets/images/light.gif";
+            "{{ base_url }}"+"/static/assets/images/light.gif";
           localStorage.setItem("theme", "light");
         } else {
           document.querySelector("#bgImg").src =
-            "static/assets/images/dark.gif";
+          "{{ base_url }}"+"/static/assets/images/dark.gif";
           localStorage.setItem("theme", "dark");
         }
         document.querySelector("#bgImg").classList.toggle("darker");
