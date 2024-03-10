@@ -4,7 +4,10 @@ on:
   push:
     branches:
       - main
-  
+
+env:
+  key: '${{ secrets.key }}'
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -13,15 +16,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Deploy to EC2 instance
+    - name: Deploy to AWS EC2 Instance
       run: |
-        echo '${{ secrets.key }}' > flask.pem
-        ssh -i "flask.pem" ubuntu@ec2-3-80-180-122.compute-1.amazonaws.com
-        cd AGBEROCHAT2.0
-        sudo systemctl stop AGBEROCHAT2_0
-        git pull
-        sudo systemctl daemon-reload
-        sudo systemctl start AGBEROCHAT2_0
-        sudo systemctl enable AGBEROCHAT2_0
-        sudo systemctl restart nginx
-
+        bash deploy.sh
+        echo "Deploy Success"

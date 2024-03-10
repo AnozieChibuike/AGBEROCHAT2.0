@@ -1,6 +1,9 @@
-echo CLIENT_ID=$CLIENT_ID >> .env
-echo CLIENT_SECRET=$CLIENT_SECRET >> .env
-echo base_url=$base_url >> .env
-echo DEPLOYMENT=1 >> .env
-echo DATABASE_URL=$DATABASE_URL >> .env
-echo $CREDENTIALS >> credentials.json
+echo $key >> flask.pem
+ssh -i "flask.pem" ubuntu@ec2-3-80-180-122.compute-1.amazonaws.com
+cd AGBEROCHAT2.0
+sudo systemctl stop AGBEROCHAT2_0
+git pull
+sudo systemctl daemon-reload
+sudo systemctl start AGBEROCHAT2_0
+sudo systemctl enable AGBEROCHAT2_0
+sudo systemctl restart nginx
