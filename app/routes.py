@@ -322,12 +322,14 @@ def login():
     if current_user.is_authenticated:
         return redirect(url_for('chatroom'))
     if request.method == "POST":
+        logging.debug(base_url)
         email = request.form.get("email")
         password = request.form.get("password")
         remember = bool(request.form.get("remember-me"))
         user = Users.query.filter_by(email=email).first()
         if user is None or not user.check_password(password):
             flash("Invalid login details")
+            logging.debug(url_for('login'))
             return redirect(url_for('login'))
         login_user(user, remember=remember)
         next_page = request.args.get("next")
