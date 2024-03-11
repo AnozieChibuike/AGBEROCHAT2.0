@@ -31,7 +31,7 @@
     />
   </head>
   <!-- <a href="/profile/{{ current_user.username }}?prev_url={{ base_url }}/chatbox?room={{ room_id }}" -->
-  <body class="p-4">
+  <body class="p-4 dark:bg-slate-900">
     <section
       class="chat-top dark:bg-slate-900 flex flex-row justify-between items-center"
     >
@@ -221,40 +221,40 @@
             />
           </div>
         </div>
-        <h1 class="self-center">ME</h1>
+        <h1 class="self-center dark:text-white">ME</h1>
         <div class="flex justify-around mt-3">
           <a href="/profile/{{ user.username }}/followers">
             <div class="flex flex-col">
-              <span class="self-center font-bold">{{ followers|length }}</span>
-              <span>follower(s)</span>
+              <span class="self-center font-bold dark:text-white">{{ followers|length }}</span>
+              <span class="dark:text-white">follower(s)</span>
             </div>
           </a>
           <a href="/profile/{{ user.username }}/following">
             <div class="flex flex-col">
-              <span class="self-center font-bold">{{ following|length }}</span>
-              <span>following(s)</span>
+              <span class="self-center font-bold dark:text-white">{{ following|length }}</span>
+              <span class="dark:text-white">following(s)</span>
             </div>
           </a>
         </div>
-        <p>Bio:</p>
+        <p class="dark:text-white">Bio:</p>
         <textarea
           name="bio"
           placeholder="Bio goes here..."
-          class="pl-2 border mb-3"
+          class="pl-2 border mb-3 dark:bg-slate-900 dark:text-white"
         >
 {{ user.bio or '' }}</textarea
         >
-        <p>Email:</p>
+        <p class="dark:text-white">Email:</p>
         <input
           placeholder="{{ user.email }}"
           disabled
           class="p-2 border mb-5"
         />
-        <p>Username:</p>
+        <p class="dark:text-white">Username:</p>
         <input
           value="{{ user.username }}"
           name="username"
-          class="p-2 border mb-16"
+          class="p-2 border mb-16 dark:bg-slate-900 dark:text-white"
         />
         <button
           type="submit"
@@ -275,10 +275,10 @@
             id="pfp"
           />
         </div>
-        <h1 class="self-center">{{ user.username }}</h1>
+        <h1 class="self-center dark:text-white">{{ user.username }}</h1>
         <div class="flex justify-around mt-3">
           <a href="/profile/{{ user.username }}/followers">
-            <div class="flex flex-col">
+            <div class="flex flex-col dark:text-white">
               <span class="self-center font-bold" id="followers"
                 >{{ followers|length }}</span
               >
@@ -286,7 +286,7 @@
             </div>
           </a>
           <a href="/profile/{{ user.username }}/following">
-            <div class="flex flex-col">
+            <div class="flex flex-col dark:text-white">
               <span class="self-center font-bold">{{ following|length }}</span>
               <span>following(s)</span>
             </div>
@@ -309,16 +309,19 @@
           Follow
         </button>
         {% endif %}
-        <p class="self-center mt-10 font-bold mb-4">About me</p>
+        <p class="self-center mt-10 font-bold mb-4 dark:text-white">About me</p>
         {% if not user.bio %}
-        <p class="mb-3">Nothing to show here</p>
+        <p class="mb-3 dark:text-white">Nothing to show here</p>
         {% else %}
-        <p class="mb-3">{{ user.bio }}</p>
+        <p class="mb-3 dark:text-white">{{ user.bio }}</p>
         {% endif %}
       </div>
       {% endif %}
     </section>
     <script>
+      let theme = localStorage.getItem("theme") || "light";
+      if (theme === "light") document.documentElement.classList.remove("dark");
+      else document.documentElement.classList.add("dark");
       const socket = io.connect("{{base_url}}");
       const select_file = () => document.getElementById("imgInput").click();
       const showElement = () =>

@@ -24,17 +24,17 @@
     />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   </head>
-  <body class="m-2">
+  <body class="m-2 dark:bg-slate-900">
     <div class="flex justify-between mb-7">
       <a href="/profile/{{ user.username }}" class="cursor-pointer">
-        <img src="{{ base_url }}/static/assets/images/close.png" />
+        <img src="{{ base_url }}/static/assets/images/close.png" class="filter dark:invert" />
       </a>
-      <p class="text-center font-bold text-xl">
+      <p class="text-center font-bold text-xl dark:text-white">
           {{ user.username }}
       </p>
       <span></span>
     </div>
-    <p class="text-center font-bold text-xl">{{ title }}</p>
+    <p class="text-center font-bold text-xl dark:text-white">{{ title }}</p>
     <div class="px-2 flex flex-col py-6">
       {% for users in query %}
       <div class="flex justify-between p-2 items-center flex-row">
@@ -42,7 +42,7 @@
           <div class="rounded-full w-12 h-12 overflow-hidden border mr-2">
             <img src="{{ users.image_url }}" class="w-full h-full" />
           </div>
-          <a id="prof" href="/profile/{{ users.username }}" class="text-base">{{ users.username if users.username|length <= 6 else users.username[:6] + '...' }}</a>
+          <a id="prof" href="/profile/{{ users.username }}" class="text-base dark:text-white">{{ users.username if users.username|length <= 6 else users.username[:6] + '...' }}</a>
         </div>
         {% if users in current_user.get_following() %}
         <button
@@ -67,6 +67,9 @@
       {% endfor %}
     </div>
     <script>
+      let theme = localStorage.getItem("theme") || "light";
+      if (theme === "light") document.documentElement.classList.remove("dark");
+      else document.documentElement.classList.add("dark");
       const socket = io.connect("{{base_url}}");
       const follow = (user_id) => {
         const followBTN = document.getElementById("follow"+user_id);

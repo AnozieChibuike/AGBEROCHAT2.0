@@ -63,9 +63,14 @@ const handleChat = (username, message, isSelf, imageUrl) => {
 
 
 const toggleDarkMode = () => {
-  if (document.querySelector("#darker").innerText === "DarkMode")
+  if (document.querySelector("#darker").innerText === "DarkMode") {
+    localStorage.setItem("theme", "dark");
     document.querySelector("#darker").innerText = "LightMode";
-  else document.querySelector("#darker").innerText = "DarkMode";
+  }
+  else{
+    document.querySelector("#darker").innerText = "DarkMode";
+    localStorage.setItem("theme", "light");
+  }
 
   document.documentElement.classList.toggle("dark");
 };
