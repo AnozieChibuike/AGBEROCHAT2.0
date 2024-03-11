@@ -163,7 +163,7 @@ def oauth2_callback(provider):
         user = Users(
             email=user_data["email"],
             image_url=user_data["picture"],
-            username=user_data["email"].split("@")[0],
+            username=user_data["email"].split("@")[0].replace(" ","_"),
         )
         user.rooms.append(general)
         user.save()
