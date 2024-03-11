@@ -301,7 +301,7 @@ def signup():
             Users.query.filter_by(email=email).first() is None
             and Users.query.filter_by(username=username).first() is None
         ):
-            user = Users(username=username, email=email)
+            user = Users(username=username.strip().replace(" ","_"), email=email)
             user.rooms.append(general)
             user.set_password(password)
             user.save()
@@ -589,7 +589,7 @@ def apiSignUp():
                 jsonify({"error": "user exists with supplied email", "from": "email"}),
                 404,
             )
-        user = Users(email=email, username=username)
+        user = Users(email=email, username=username.strip().replace(" ","_"))
         user.set_password(password)
         user.rooms.append(general)
         user.save()
