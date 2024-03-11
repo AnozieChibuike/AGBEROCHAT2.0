@@ -15,6 +15,10 @@ import requests
 import secrets
 import json
 from werkzeug.utils import secure_filename
+import logging
+
+logging.basicConfig(filename="app.log", level=logging.DEBUG)
+
 
 load_dotenv()
 
@@ -81,7 +85,7 @@ def authorize(provider):
         abort(404)
     # generate a random string for the state parameter
     session["oauth2_state"] = secrets.token_urlsafe(16)
-
+    logging.debug(url_for("oauth2_callback", provider=provider, _external=True))
     # create a query string with all the OAuth2 parameters
     qs = urlencode(
         {
@@ -282,13 +286,13 @@ def logout():
         pass
     socket.emit("len", {"len": len(users), "users": list(users.keys())})
     logout_user()
-    return redirect("/")
+    return redirect(url_for('home'))
 
 
 @app.route("/")
 @app.route("/home")
 def home():
-    return rd("index.html",base_url=base_url)
+    return rd("index.html", base_url=base_url)
 
 
 @app.route("/signup", methods=["POST", "GET"])
@@ -306,17 +310,17 @@ def signup():
             user.rooms.append(general)
             user.set_password(password)
             user.save()
-            return redirect("/login")
+            return redirect(url_for('login'))
         else:
             flash("Users exists!")
-            return redirect("/signup")
-    return rd("signup.html",base_url=base_url)
+            return redirect(url_for('signup'))
+    return rd("signup.html", base_url=base_url)
 
 
 @app.route("/login", methods=["POST", "GET"])
 def login():
     if current_user.is_authenticated:
-        return redirect("/chatbox")
+        return redirect(url_for('chatroom'))
     if request.method == "POST":
         email = request.form.get("email")
         password = request.form.get("password")
@@ -324,7 +328,7 @@ def login():
         user = Users.query.filter_by(email=email).first()
         if user is None or not user.check_password(password):
             flash("Invalid login details")
-            return redirect("/login")
+            return redirect(url_for('login'))
         login_user(user, remember=remember)
         next_page = request.args.get("next")
         message = f"{user.username} joined the chat."
@@ -338,7 +342,7 @@ def login():
                 "chatroom", room=Rooms.query.filter_by(name="General").first().id
             )
         return redirect(next_page)
-    return rd("login.html",base_url=base_url)
+    return rd("login.html", base_url=base_url)
 
 
 @app.route("/profile/<usern>", methods=["POST", "GET"])
@@ -432,22 +436,25 @@ def profile(usern):
         following=following,
     )
 
+
 @app.route("/profile/<usern>/<query>")
 @login_required
-def following(usern,query):
+def following(usern, query):
     query_user = usern
     if not Users.query.filter_by(username=query_user).first():
         abort(404)
-    if query.lower() not in ['followers','following']:
+    if query.lower() not in ["followers", "following"]:
         abort(404)
     query_user = Users.query.filter_by(username=query_user).first()
-    if query.lower() == 'following':
+    if query.lower() == "following":
         query = query_user.get_following()
-        title = 'Following'
+        title = "Following"
     else:
         query = query_user.get_followers()
-        title = 'Followers'
-    return rd('user_page.html',query=query,user=query_user,base_url=base_url,title=title)
+        title = "Followers"
+    return rd(
+        "user_page.html", query=query, user=query_user, base_url=base_url, title=title
+    )
 
 
 @app.errorhandler(404)
