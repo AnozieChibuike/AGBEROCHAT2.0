@@ -16,11 +16,6 @@ import secrets
 import json
 from werkzeug.utils import secure_filename
 
-import logging
-
-# Configure logging to write to a file named 'app.log'
-logging.basicConfig(filename="app.log", level=logging.DEBUG)
-
 load_dotenv()
 
 base_url = os.getenv("base_url")
@@ -79,9 +74,7 @@ def uploadImg():
 def authorize(provider):
     if not current_user.is_anonymous:
         return redirect(
-            base_url
-            + "/chatbox?room="
-            + Rooms.query.filter_by(name="General").first().id
+            url_for("chatroom", room=Rooms.query.filter_by(name="General").first().id)
         )
     provider_data = app.config["OAUTH2_PROVIDERS"].get(provider)
     if provider_data is None:
@@ -93,7 +86,9 @@ def authorize(provider):
     qs = urlencode(
         {
             "client_id": provider_data["client_id"],
-            "redirect_uri": f"{base_url}/callback/google",
+            "redirect_uri": url_for(
+                "oauth2_callback", provider=provider, _external=True
+            ),
             "response_type": "code",
             "scope": " ".join(provider_data["scopes"]),
             "state": session["oauth2_state"],
@@ -107,7 +102,7 @@ def authorize(provider):
 def oauth2_callback(provider):
     if not current_user.is_anonymous:
         return redirect(
-            f'{base_url}/chatbox?room={Rooms.query.filter_by(name="General").first().id}'
+            url_for("chatroom", room=Rooms.query.filter_by(name="General").first().id)
         )
 
     provider_data = app.config["OAUTH2_PROVIDERS"].get(provider)
@@ -119,7 +114,7 @@ def oauth2_callback(provider):
         for k, v in request.args.items():
             if k.startswith("error"):
                 print(f"{k}: {v}")
-        return redirect(base_url)
+        return redirect(url_for("index"))
 
     # make sure that the state parameter matches the one we created in the
     # authorization request
@@ -138,7 +133,9 @@ def oauth2_callback(provider):
             "client_secret": provider_data["client_secret"],
             "code": request.args["code"],
             "grant_type": "authorization_code",
-            "redirect_uri": f"{base_url}/callback/google",
+            "redirect_uri": url_for(
+                "oauth2_callback", provider=provider, _external=True
+            ),
         },
         headers={"Accept": "application/json"},
     )
@@ -174,7 +171,7 @@ def oauth2_callback(provider):
     login_user(user)
     # log the user in
     return redirect(
-        f'{base_url}/chatbox?room={Rooms.query.filter_by(name="General").first().id}'
+        url_for("chatroom", room=Rooms.query.filter_by(name="General").first().id)
     )
 
 
@@ -291,7 +288,7 @@ def logout():
 @app.route("/")
 @app.route("/home")
 def home():
-    return rd("index.html", base_url=base_url)
+    return rd("index.html",base_url=base_url)
 
 
 @app.route("/signup", methods=["POST", "GET"])
@@ -313,7 +310,7 @@ def signup():
         else:
             flash("Users exists!")
             return redirect("/signup")
-    return rd("signup.html", base_url=base_url)
+    return rd("signup.html",base_url=base_url)
 
 
 @app.route("/login", methods=["POST", "GET"])
@@ -325,10 +322,8 @@ def login():
         password = request.form.get("password")
         remember = bool(request.form.get("remember-me"))
         user = Users.query.filter_by(email=email).first()
-        logging.debug(user)
         if user is None or not user.check_password(password):
             flash("Invalid login details")
-            logging.debug("Hmmm")
             return redirect("/login")
         login_user(user, remember=remember)
         next_page = request.args.get("next")
@@ -339,9 +334,11 @@ def login():
         db.session.add(p)
         db.session.commit()
         if not next_page or urlsplit(next_page).netloc != "":
-            next_page = f'{base_url}/chatbox?room={Rooms.query.filter_by(name="General").first().id}'
+            next_page = url_for(
+                "chatroom", room=Rooms.query.filter_by(name="General").first().id
+            )
         return redirect(next_page)
-    return rd("login.html", base_url=base_url)
+    return rd("login.html",base_url=base_url)
 
 
 @app.route("/profile/<usern>", methods=["POST", "GET"])
@@ -349,7 +346,7 @@ def login():
 def profile(usern):
     query_user = usern
     general = Rooms.query.filter_by(name="General").first().id
-    prev_url = request.args.get("prev_url", f"{base_url}/chatbox?room={general}")
+    prev_url = request.args.get("prev_url", url_for("chatroom", room=general))
     if not Users.query.filter_by(username=query_user).first():
         abort(404)
     query_user = Users.query.filter_by(username=query_user).first()
@@ -435,25 +432,22 @@ def profile(usern):
         following=following,
     )
 
-
 @app.route("/profile/<usern>/<query>")
 @login_required
-def following(usern, query):
+def following(usern,query):
     query_user = usern
     if not Users.query.filter_by(username=query_user).first():
         abort(404)
-    if query.lower() not in ["followers", "following"]:
+    if query.lower() not in ['followers','following']:
         abort(404)
     query_user = Users.query.filter_by(username=query_user).first()
-    if query.lower() == "following":
+    if query.lower() == 'following':
         query = query_user.get_following()
-        title = "Following"
+        title = 'Following'
     else:
         query = query_user.get_followers()
-        title = "Followers"
-    return rd(
-        "user_page.html", query=query, user=query_user, base_url=base_url, title=title
-    )
+        title = 'Followers'
+    return rd('user_page.html',query=query,user=query_user,base_url=base_url,title=title)
 
 
 @app.errorhandler(404)
@@ -477,18 +471,18 @@ def chatroom():
     if not room:
         flash("Bad request", "error")
         return redirect(
-            f'{base_url}/chatbox?room={Rooms.query.filter_by(name="General").first().id}'
+            url_for("chatroom", room=Rooms.query.filter_by(name="General").first().id)
         )
     Room = Rooms.get(id=room)
     if not Room:
         flash("Room does not exist", "error")
         return redirect(
-            f'{base_url}/chatbox?room={Rooms.query.filter_by(name="General").first().id}'
+            url_for("chatroom", room=Rooms.query.filter_by(name="General").first().id)
         )
     if current_user not in Room.users:
         flash("Not a member of Room, request invite link from admin", "error")
         return redirect(
-            f'{base_url}/chatbox?room={Rooms.query.filter_by(name="General").first().id}'
+            url_for("chatroom", room=Rooms.query.filter_by(name="General").first().id)
         )
     is_admin = Room.users[0] == current_user
     room_name = Room.name if len(Room.name) < 8 else Room.name[:7] + "..."
@@ -516,7 +510,7 @@ def create_room():
     room.users.append(owner)
     room.save()
     flash("Chatroom created successfully", "success")
-    return redirect(f"{base_url}/chatbox?room={room.id}")
+    return redirect(url_for("chatroom", room=room.id))
 
 
 @app.get("/join")
@@ -526,21 +520,21 @@ def join():
     if not room_name:
         flash("Invalid param", "error")
         return redirect(
-            f'{base_url}/chatbox?room={Rooms.query.filter_by(name="General").first().id}'
+            url_for("chatroom", room=Rooms.query.filter_by(name="General").first().id)
         )
     room = Rooms.get(id=room_name)
     if not room:
         flash("Room does not exist, check the invite link again", "error")
         return redirect(
-            f'{base_url}/chatbox?room={Rooms.query.filter_by(name="General").first().id}'
+            url_for("chatroom", room=Rooms.query.filter_by(name="General").first().id)
         )
     if current_user in room.users:
         flash("Already a member of this room", "error")
-        return redirect(f"{base_url}/chatbox?room={room.id}")
+        return redirect(url_for("chatroom", room=room.id))
     room.users.append(current_user)
     room.save()
     flash(f"Welcome to {room.name} room, please be nice", "success")
-    return redirect(f"{base_url}/chatbox?room={room.id}")
+    return redirect(url_for("chatroom", room=room.id))
 
 
 # API
