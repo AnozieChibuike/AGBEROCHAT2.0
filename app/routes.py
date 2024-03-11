@@ -28,12 +28,12 @@ base_url = os.getenv("base_url")
 users = {}
 
 
-def upload_blob(file,bucket_name="agberochat"):
+def upload_blob(file,filename,bucket_name="agberochat"):
     """Uploads a file to the Google Cloud Storage bucket."""
     s3 = boto3.client('s3')
     # Instantiates a client
 
-    id, extension = os.path.splitext(file.filename)
+    id, extension = os.path.splitext(filename)
     object_name = f"{id}/{uuid.uuid4()}.{extension}"
     # Get the bucket
     try:
@@ -47,7 +47,9 @@ def upload_blob(file,bucket_name="agberochat"):
             # Delete the objects
             s3.delete_objects(Bucket=bucket_name, Delete=delete_keys)
         response = s3.upload_fileobj(file, bucket_name, object_name)
-        return {'success':1}
+        s3.put_object_acl(Bucket=bucket_name, Key=object_name, ACL='public-read')
+        logging.debug("DONE\n\n\n\n\n")
+        return {'uri':f'https://agberochat.s3.amazonaws.com/{object_name}'}
     except Exception as e:
         logging.error(e)
         return {'error':0}
@@ -61,8 +63,13 @@ def uploadImg():
     user = Users.get(id=file.filename.split(".")[0])
     if not file:
         return jsonify({"error": "Image required"}), 400
-    user.image_url = upload_blob(file)
-    user.save()
+    
+    image_url = upload_blob(file,file.filename).get('uri',None)
+    if image_url:
+        user.image_url = image_url
+        user.save()
+    else:
+        pass
     return jsonify({"data": user.image_url})
 
 
@@ -348,12 +355,13 @@ def profile(usern):
     followers = query_user.get_followers()
     following = query_user.get_following()
     if request.method == "POST":
-        if len(request.form.get("bio")) >= 500:
-            flash(
-                f'Bio should not be more than 500 characters - {len(request.form.get("bio"))}/500'
-            )
-        else:
-            current_user.bio = request.form.get("bio")
+        if request.form.get("bio"):
+            if len(request.form.get("bio")) >=500:
+                flash(
+                    f'Bio should not be more than 500 characters - {len(request.form.get("bio"))}/500'
+                )
+            else:
+                current_user.bio = request.form.get("bio")
         if request.form.get("username", None):
             user = Users.query.filter_by(username=request.form.get("username")).first()
             if user == current_user:
@@ -395,21 +403,14 @@ def profile(usern):
             if file.filename == "":
                 flash("No file selected")
             else:
-                current_dir = os.path.dirname(os.path.abspath(__file__))
-                tmp = os.path.join(
-                    current_dir, "static", "assets", "images", "tmp", current_user.id
-                )
-                tmp = os.path.normpath(tmp)
-                if not os.path.exists(tmp):
-                    os.makedirs(tmp)
-                for files in os.listdir(tmp):
-                    file_path = os.path.join(tmp, files)
-                    os.unlink(file_path)
                 filename = secure_filename(file.filename)
-                file.save(os.path.join(tmp, filename))
-                current_user.image_url = (
-                    f"{base_url}/static/assets/images/tmp/{current_user.id}/{filename}"
-                )
+                _, ext = os.path.splitext(filename)
+                filename = current_user.id + ext
+                image_url = upload_blob(file,file.filename).get('uri',None)
+                if image_url:
+                    current_user.image_url = image_url
+                else:
+                    pass
         current_user.save()
         return redirect(f"/profile/{current_user.username}?prev_url={prev_url}")
 
