@@ -28,34 +28,37 @@ base_url = os.getenv("base_url")
 users = {}
 
 
-def upload_blob(file,filename,bucket_name="agberochat"):
+def upload_blob(file, filename, bucket_name="agberochat"):
     """Uploads a file to the Google Cloud Storage bucket."""
-    s3 = boto3.client('s3')
+    s3 = boto3.client("s3")
     # Instantiates a client
 
-    id, extension = os.path.splitext(filename)
-    object_name = f"{id}/{uuid.uuid4()}.{extension}"
+    user_id, extension = os.path.splitext(filename)
+    object_name = f"{user_id}/{uuid.uuid4()}{extension}"
     # Get the bucket
     try:
-        response = s3.list_objects_v2(Bucket=bucket_name,Prefix=id)
-        if 'Contents' not in response:
+        response = s3.list_objects_v2(Bucket=bucket_name, Prefix=id)
+        if "Contents" not in response:
             pass
         else:
-            delete_keys = {'Objects': []}
-            delete_keys['Objects'] = [{'Key': obj['Key']} for obj in response['Contents']]
-    
+            delete_keys = {"Objects": []}
+            delete_keys["Objects"] = [
+                {"Key": obj["Key"]} for obj in response["Contents"]
+            ]
+
             # Delete the objects
             s3.delete_objects(Bucket=bucket_name, Delete=delete_keys)
         response = s3.upload_fileobj(file, bucket_name, object_name)
-        s3.put_object_acl(Bucket=bucket_name, Key=object_name, ACL='public-read')
+        s3.put_object_acl(Bucket=bucket_name, Key=object_name, ACL="public-read")
         logging.debug("DONE\n\n\n\n\n")
-        return {'uri':f'https://agberochat.s3.amazonaws.com/{object_name}'}
+        return {"uri": f"https://agberochat.s3.amazonaws.com/{object_name}"}
     except Exception as e:
         logging.error(e)
-        return {'error':0}
+        return {"error": 0}
     # Extract file name without extension from source file path
 
     # Rename the destination blob (object) name
+
 
 @app.post("/upload-img")
 def uploadImg():
@@ -63,8 +66,8 @@ def uploadImg():
     user = Users.get(id=file.filename.split(".")[0])
     if not file:
         return jsonify({"error": "Image required"}), 400
-    
-    image_url = upload_blob(file,file.filename).get('uri',None)
+
+    image_url = upload_blob(file, file.filename).get("uri", None)
     if image_url:
         user.image_url = image_url
         user.save()
@@ -89,7 +92,7 @@ def authorize(provider):
     qs = urlencode(
         {
             "client_id": provider_data["client_id"],
-            "redirect_uri": base_url+'/callback/'+provider,
+            "redirect_uri": base_url + "/callback/" + provider,
             "response_type": "code",
             "scope": " ".join(provider_data["scopes"]),
             "state": session["oauth2_state"],
@@ -134,7 +137,7 @@ def oauth2_callback(provider):
             "client_secret": provider_data["client_secret"],
             "code": request.args["code"],
             "grant_type": "authorization_code",
-            "redirect_uri": base_url+'/callback/'+provider,
+            "redirect_uri": base_url + "/callback/" + provider,
         },
         headers={"Accept": "application/json"},
     )
@@ -162,7 +165,7 @@ def oauth2_callback(provider):
         user = Users(
             email=user_data["email"],
             image_url=user_data["picture"],
-            username=user_data["email"].split("@")[0].strip().replace(" ","_"),
+            username=user_data["email"].split("@")[0].strip().replace(" ", "_"),
         )
         user.rooms.append(general)
         user.save()
@@ -281,7 +284,7 @@ def logout():
         pass
     socket.emit("len", {"len": len(users), "users": list(users.keys())})
     logout_user()
-    return redirect(url_for('home'))
+    return redirect(url_for("home"))
 
 
 @app.route("/")
@@ -301,21 +304,21 @@ def signup():
             Users.query.filter_by(email=email).first() is None
             and Users.query.filter_by(username=username).first() is None
         ):
-            user = Users(username=username.strip().replace(" ","_"), email=email)
+            user = Users(username=username.strip().replace(" ", "_"), email=email)
             user.rooms.append(general)
             user.set_password(password)
             user.save()
-            return redirect(url_for('login'))
+            return redirect(url_for("login"))
         else:
             flash("Users exists!")
-            return redirect(url_for('signup'))
+            return redirect(url_for("signup"))
     return rd("signup.html", base_url=base_url)
 
 
 @app.route("/login", methods=["POST", "GET"])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for('chatroom'))
+        return redirect(url_for("chatroom"))
     if request.method == "POST":
         logging.debug(base_url)
         email = request.form.get("email")
@@ -324,8 +327,8 @@ def login():
         user = Users.query.filter_by(email=email).first()
         if user is None or not user.check_password(password):
             flash("Invalid login details")
-            logging.debug(url_for('login'))
-            return redirect(url_for('login'))
+            logging.debug(url_for("login"))
+            return redirect(url_for("login"))
         login_user(user, remember=remember)
         next_page = request.args.get("next")
         message = f"{user.username} joined the chat."
@@ -356,7 +359,7 @@ def profile(usern):
     following = query_user.get_following()
     if request.method == "POST":
         if request.form.get("bio"):
-            if len(request.form.get("bio")) >=500:
+            if len(request.form.get("bio")) >= 500:
                 flash(
                     f'Bio should not be more than 500 characters - {len(request.form.get("bio"))}/500'
                 )
@@ -406,7 +409,7 @@ def profile(usern):
                 filename = secure_filename(file.filename)
                 _, ext = os.path.splitext(filename)
                 filename = current_user.id + ext
-                image_url = upload_blob(file,file.filename).get('uri',None)
+                image_url = upload_blob(file, filename).get("uri", None)
                 if image_url:
                     current_user.image_url = image_url
                 else:
@@ -589,7 +592,7 @@ def apiSignUp():
                 jsonify({"error": "user exists with supplied email", "from": "email"}),
                 404,
             )
-        user = Users(email=email, username=username.strip().replace(" ","_"))
+        user = Users(email=email, username=username.strip().replace(" ", "_"))
         user.set_password(password)
         user.rooms.append(general)
         user.save()
