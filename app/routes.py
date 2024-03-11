@@ -16,6 +16,7 @@ import secrets
 import json
 from werkzeug.utils import secure_filename
 import logging
+import boto3
 
 logging.basicConfig(filename="app.log", level=logging.DEBUG)
 
@@ -27,41 +28,32 @@ base_url = os.getenv("base_url")
 users = {}
 
 
-def upload_blob(destination_blob_name, file, bucket_name="agberochat"):
+def upload_blob(file,bucket_name="agberochat"):
     """Uploads a file to the Google Cloud Storage bucket."""
-    credentials = service_account.Credentials.from_service_account_file(
-        os.getcwd() + "/" + "credentials.json",
-        scopes=["https://www.googleapis.com/auth/cloud-platform"],
-    )
+    s3 = boto3.client('s3')
     # Instantiates a client
-    storage_client = storage.Client(project="flask-app-404911", credentials=credentials)
 
+    id, extension = os.path.splitext(file.filename)
+    object_name = f"{id}/{uuid.uuid4()}.{extension}"
     # Get the bucket
-    bucket = storage_client.get_bucket(bucket_name)
-
+    try:
+        response = s3.list_objects_v2(Bucket=bucket_name,Prefix=id)
+        if 'Contents' not in response:
+            pass
+        else:
+            delete_keys = {'Objects': []}
+            delete_keys['Objects'] = [{'Key': obj['Key']} for obj in response['Contents']]
+    
+            # Delete the objects
+            s3.delete_objects(Bucket=bucket_name, Delete=delete_keys)
+        response = s3.upload_fileobj(file, bucket_name, object_name)
+        return {'success':1}
+    except Exception as e:
+        logging.error(e)
+        return {'error':0}
     # Extract file name without extension from source file path
-    id, extension = os.path.splitext(destination_blob_name)
 
     # Rename the destination blob (object) name
-    destination_blob_name = f"{id}/{uuid.uuid4()}.{extension}"
-
-    try:
-        blobs = bucket.list_blobs(prefix=id)
-
-        # Delete each blob
-        for blob in blobs:
-            blob.delete()
-
-    except:
-        pass
-    # Upload the file
-    blob = bucket.blob(destination_blob_name)
-    blob.upload_from_file(file)
-    blob.make_public()
-    return blob.public_url
-
-    # print(f"File {source_file_path} uploaded to {destination_blob_name} in {bucket_name}.")
-
 
 @app.post("/upload-img")
 def uploadImg():
@@ -69,7 +61,7 @@ def uploadImg():
     user = Users.get(id=file.filename.split(".")[0])
     if not file:
         return jsonify({"error": "Image required"}), 400
-    user.image_url = upload_blob(file.filename, file)
+    user.image_url = upload_blob(file)
     user.save()
     return jsonify({"data": user.image_url})
 
