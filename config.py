@@ -5,7 +5,6 @@ load_dotenv()
 
 class Config(object):
     SECRET_KEY = "shjhfgdskhjd"
-    SERVER_NAME = os.getenv('domain')
     SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL") or "sqlite:///app.db"
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     OAUTH2_PROVIDERS = {
