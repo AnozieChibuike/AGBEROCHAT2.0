@@ -37,7 +37,7 @@ def upload_blob(file, filename, bucket_name="agberochat"):
     object_name = f"{user_id}/{uuid.uuid4()}{extension}"
     # Get the bucket
     try:
-        response = s3.list_objects_v2(Bucket=bucket_name, Prefix=id)
+        response = s3.list_objects_v2(Bucket=bucket_name, Prefix=user_id)
         if "Contents" not in response:
             pass
         else:
