@@ -178,11 +178,11 @@
     <script>
       let theme = localStorage.getItem("theme") || "light";
       if (theme === "light") {
-        document.querySelector("#bgImg").src = "static/assets/images/light.gif";
+        document.querySelector("#bgImg").src = "static/assets/images/dark.gif";
         document.documentElement.classList.remove("dark");
         document.querySelector("#bgImg").classList.remove("darker");
       } else {
-        document.querySelector("#bgImg").src = "static/assets/images/dark.gif";
+        document.querySelector("#bgImg").src = "static/assets/images/light.gif";
         document.querySelector("#bgImg").classList.add("darker");
         document.documentElement.classList.add("dark");
       }
