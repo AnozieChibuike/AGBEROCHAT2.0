@@ -189,11 +189,11 @@
       const toggleDarkMode = () => {
         if (document.querySelector("#bgImg").classList.contains("darker")) {
           document.querySelector("#bgImg").src =
-            "{{ base_url }}"+"/static/assets/images/light.gif";
+            "{{ base_url }}"+"/static/assets/images/dark.gif";
           localStorage.setItem("theme", "light");
         } else {
           document.querySelector("#bgImg").src =
-          "{{ base_url }}"+"/static/assets/images/dark.gif";
+          "{{ base_url }}"+"/static/assets/images/light.gif";
           localStorage.setItem("theme", "dark");
         }
         document.querySelector("#bgImg").classList.toggle("darker");
