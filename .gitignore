@@ -7,3 +7,4 @@
 *migrations/
 *.venv/
 *tmp/
+*app.log
