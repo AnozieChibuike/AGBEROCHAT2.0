@@ -322,8 +322,10 @@ def login():
         password = request.form.get("password")
         remember = bool(request.form.get("remember-me"))
         user = Users.query.filter_by(email=email).first()
+        print(user)
         if user is None or not user.check_password(password):
             flash("Invalid login details")
+            print('Hmmm')
             return redirect("/login")
         login_user(user, remember=remember)
         next_page = request.args.get("next")
