@@ -376,7 +376,7 @@ def profile(usern):
                 room = current_user.rooms
                 for rooms in room:
                     p = Msg(
-                        body=f"(AUTO) {current_user.username} changed their username to: {request.form.get('username').strip().replace(" ","_")}",
+                        body=f'(AUTO) {current_user.username} changed their username to: {request.form.get('username').strip().replace(" ","_")}',
                         author=current_user,
                         room=rooms,
                     )
@@ -386,7 +386,7 @@ def profile(usern):
                         {
                             "user": current_user.username,
                             "imageUrl": current_user.image_url,
-                            "msg": f"(AUTO) {current_user.username} changed their username to: {request.form.get('username').strip().replace(" ","_")}",
+                            "msg": f'(AUTO) {current_user.username} changed their username to: {request.form.get('username').strip().replace(" ","_")}',
                             "api_message": {
                                 "createdAt": p.created_at.isoformat(),
                                 "text": p.body,
