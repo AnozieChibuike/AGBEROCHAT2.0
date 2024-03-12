@@ -470,7 +470,6 @@ def chatroom():
     user_rooms = current_user.rooms
     general = Rooms.query.filter_by(name="General").first().id
     if not room:
-        flash("Bad request", "error")
         return redirect(
             url_for("chatroom", room=Rooms.query.filter_by(name="General").first().id)
         )

@@ -15,7 +15,11 @@
             <li>Video and voice calls -We dey work on am too</li>
         </ul>
         <div class="bg-blue-600 justify-center items-center flex self-center m-7 w-32 h-12">
-            <a href="/signup" class="signup-btn text-white">Sign Up Now</a>
+            {% if current_user.is_authenticated %}
+                <a href="/chatbox" class="signup-btn text-white">Go to Chat</a>
+            {% else %}
+                <a href="/signup" class="signup-btn text-white">Sign Up Now</a>
+            {% endif %}
         </div>
         
     </div>

@@ -68,7 +68,7 @@
               <ul class="py-2 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="doubleDropdownButton">
                 {% for user_room in user_rooms %}
                 <li>
-                  <a href="{{ base_url }}/chatroom?room={{ user_room.id }}"
+                  <a href="{{ base_url }}/chatbox?room={{ user_room.id }}"
                     class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">{{
                     user_room.name }}</a>
                 </li>
