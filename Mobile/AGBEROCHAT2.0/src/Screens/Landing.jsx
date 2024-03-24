@@ -12,9 +12,11 @@ import { useEffect } from "react";
 export default Landing = ({ navigation }) => {
   useEffect(() => {
     getUser();
+    // AsyncStorage.clear()
   },[]);
   const getUser = async () => {
     let user = await AsyncStorage.getItem("userData");
+    console.log(user);
     if (user)
      navigation.navigate('Home')
   };

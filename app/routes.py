@@ -400,7 +400,9 @@ def profile(usern):
                         },
                         to=rooms.id,
                     )
-                current_user.username = request.form.get('username').strip().replace(" ","_")
+                current_user.username = (
+                    request.form.get("username").strip().replace(" ", "_")
+                )
         if request.files.get("pfp"):
             file = request.files.get("pfp")
             if file.filename == "":
@@ -666,12 +668,13 @@ def room_members():
     except:
         return jsonify({"error": "Parameters missing"}), 404
 
+
 @app.post("/api/profile")
 def api_profile():
     body = request.json
-    user = Users.get(id=body.get('id'))
-    bio = body.get('bio')
-    username = body.get('username')
+    user = Users.get(id=body.get("id"))
+    bio = body.get("bio")
+    username = body.get("username")
     if bio:
         user.bio = bio
     if username:
@@ -679,38 +682,42 @@ def api_profile():
         if check_exists == user:
             pass
         elif check_exists:
-            return jsonify({'status':'error', 'message': "User exists with username"}), 401
+            return (
+                jsonify({"status": "error", "message": "User exists with username"}),
+                401,
+            )
         else:
             room = user.rooms
-                for rooms in room:
-                    p = Msg(
-                        body=f'(AUTO) {user.username} changed their username to: {username.strip().replace(" ","_")}',
-                        author=user,
-                        room=rooms,
-                    )
-                    p.save()
-                    socket.emit(
-                        "mes",
-                        {
-                            "user": user.username,
-                            "imageUrl": user.image_url,
-                            "msg": f'(AUTO) {user.username} changed their username to: {username.strip().replace(" ","_")}',
-                            "api_message": {
-                                "createdAt": p.created_at.isoformat(),
-                                "text": p.body,
-                                "_id": p.id,
-                                "user": {
-                                    "_id": p.author.id,
-                                    "name": p.author.username,
-                                    "avatar": p.author.image_url,
-                                },
+            for rooms in room:
+                p = Msg(
+                    body=f'(AUTO) {user.username} changed their username to: {username.strip().replace(" ","_")}',
+                    author=user,
+                    room=rooms,
+                )
+                p.save()
+                socket.emit(
+                    "mes",
+                    {
+                        "user": user.username,
+                        "imageUrl": user.image_url,
+                        "msg": f'(AUTO) {user.username} changed their username to: {username.strip().replace(" ","_")}',
+                        "api_message": {
+                            "createdAt": p.created_at.isoformat(),
+                            "text": p.body,
+                            "_id": p.id,
+                            "user": {
+                                "_id": p.author.id,
+                                "name": p.author.username,
+                                "avatar": p.author.image_url,
                             },
                         },
-                        to=rooms.id,
-                    )
-                user.username = username.strip().replace(" ","_")
+                    },
+                    to=rooms.id,
+                )
+                user.username = username.strip().replace(" ", "_")
     user.save()
-    return jsonify({'status':'success', 'message': 'Data changed successfully'}), 201
+    return jsonify({"status": "success", "message": "Data changed successfully"}), 201
+
 
 @app.post("/api/create_room")
 def api_create_room():

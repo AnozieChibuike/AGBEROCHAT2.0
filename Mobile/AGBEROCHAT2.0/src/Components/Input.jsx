@@ -9,6 +9,7 @@ export default Input = ({
   onfocus = () => {},
   onblur = ()=>{},
   password,
+  optionalHeight,
   ...props
 }) => {
     const [focused, setFocused] = useState(false)
@@ -19,7 +20,7 @@ export default Input = ({
         <View
           style={[
             styles.inputContainer,
-            { borderColor: focused ? colors.yellow : error ? "red" :  colors.faintBlue, },
+            { borderColor: focused ? colors.yellow : error ? "red" :  colors.faintBlue, height: optionalHeight ? optionalHeight : 50 },
           ]}
         >
           <TextInput
@@ -35,7 +36,7 @@ export default Input = ({
                 setFocused(false)
             }}
             autoCorrect={false}
-            style={{ color: "white", fontSize: 17,flex: 1 }}
+            style={{ color: "white", fontSize: 17,flex: 1, height: '100%' }}
             {...props}
             // onPressIn={()=> console.log(9}
           ></TextInput>
@@ -60,7 +61,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: 10,
-    height: 50,
     borderWidth: 1,
     borderRadius: 7,
     marginVertical: 5,    

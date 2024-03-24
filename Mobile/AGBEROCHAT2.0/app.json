@@ -33,7 +33,7 @@
       "package": "com.joelblvk2.agberochat"
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/Logo.png"
     },
     "extra": {
       "eas": {
