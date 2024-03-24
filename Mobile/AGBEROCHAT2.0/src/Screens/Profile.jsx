@@ -28,11 +28,11 @@ import deepEqual from "../utils/deepEqual";
 
 export default Profile = ({ navigation, route }) => {
   const { user } = route.params;
-  const prevUserData = {
+  const [prevUserData, setPrevData] = useState({
     id: user.id,
     username: user.username,
     bio: user.bio,
-  };
+  });
   const [userData, setUserData] = useState({
     id: user.id,
     username: user.username,
@@ -71,8 +71,10 @@ export default Profile = ({ navigation, route }) => {
         body: JSON.stringify(userData),
       });
       const data = await response.json();
+      console.log(data);
       if (data.status === "success") {
-        Alert(data.message);
+        setPrevData({...userData})
+        Alert.alert(data.message);
       } else {
         handleError(data.message, "username");
       }
@@ -81,7 +83,7 @@ export default Profile = ({ navigation, route }) => {
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   // const [keyboardOffset, setKeyboardOffset] = useState(0);
   // const onKeyboardShow = (event) => {
@@ -203,7 +205,10 @@ export default Profile = ({ navigation, route }) => {
                   borderRadius: 400,
                 }}
               />
-              <TouchableOpacity onPress={() => setModal(true)} disabled={modal || loading}>
+              <TouchableOpacity
+                onPress={() => setModal(true)}
+                disabled={modal || loading}
+              >
                 <View
                   style={{
                     backgroundColor: "#cccccc",
@@ -243,7 +248,7 @@ export default Profile = ({ navigation, route }) => {
                 <Text
                   style={{ color: "white", fontWeight: "bold", fontSize: 19 }}
                 >
-                  10
+                  {user.followers}
                 </Text>
                 <Text style={{ color: "white" }}>Followers</Text>
               </View>
@@ -251,7 +256,7 @@ export default Profile = ({ navigation, route }) => {
                 <Text
                   style={{ color: "white", fontWeight: "bold", fontSize: 19 }}
                 >
-                  100
+                  {user.following}
                 </Text>
                 <Text style={{ color: "white" }}>Following</Text>
               </View>

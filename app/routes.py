@@ -566,7 +566,12 @@ def apiLogin():
             return jsonify({"error": "User does not exist", "from": "email"}), 404
         if not user.check_password(password):
             return jsonify({"error": "Incorrect Password", "from": "password"}), 404
-        return {"data": user.to_dict(), "success": "Logged in"}
+        followers = len(user.get_followers())
+        following = len(user.get_following())
+        data = user.to_dict()
+        data["followers"] = followers
+        data["following"] = following
+        return {"data": data, "success": "Logged in"}
     except:
         return jsonify({"error": "Parameters missing"}), 404
 
