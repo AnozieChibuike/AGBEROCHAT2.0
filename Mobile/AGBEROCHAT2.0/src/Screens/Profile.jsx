@@ -38,6 +38,7 @@ export default Profile = ({ navigation, route }) => {
     username: user.username,
     bio: user.bio,
   });
+  useEffect(()=>console.log(user),[])
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
   const handleChange = (text, input) => {
